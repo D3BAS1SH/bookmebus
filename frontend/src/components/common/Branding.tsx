@@ -8,7 +8,7 @@ export function Branding({ className }: { className?: string }) {
       <div className="flex h-10 w-10 items-center justify-center rounded-xl primary-gradient text-white shadow-ambient">
         <Compass className="h-6 w-6" />
       </div>
-      <span className="text-xl font-display font-black tracking-tighter text-on-surface">
+      <span className="text-xl font-display font-black tracking-tighter">
         Ethereal Voyager
       </span>
     </div>

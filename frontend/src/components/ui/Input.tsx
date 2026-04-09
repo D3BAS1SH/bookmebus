@@ -11,7 +11,7 @@ export interface InputProps
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, type, icon, rightElement, label, ...props }, ref) => {
     return (
-      <div className="relative w-full flex items-center gap-4 px-6 py-4 transition-all group bg-surface rounded-xl">
+      <div className="relative w-full flex items-center gap-4 px-6 py-3 transition-all group bg-surface rounded-xl">
         {icon && (
           <div className="text-primary transition-transform group-focus-within:scale-110">
             {icon}
