@@ -1,0 +1,162 @@
+'use client'
+
+import React, { useState } from 'react'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Menu, X, LucideIcon } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { Branding } from './Branding'
+import { Button } from '@/components/ui/Button'
+
+export interface NavItem {
+  label: string
+  href: string
+  icon: LucideIcon
+}
+
+interface RoleNavbarProps {
+  role: string
+  navItems: NavItem[]
+}
+
+export function RoleNavbar({ role, navItems }: RoleNavbarProps) {
+  const [isOpen, setIsOpen] = useState(false)
+  const pathname = usePathname()
+
+  const toggleMenu = () => setIsOpen(!isOpen)
+
+  return (
+    <nav className="sticky top-0 z-50 w-full border-b border-white/10 bg-black/60 backdrop-blur-xl">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="flex h-16 items-center justify-between">
+          {/* Desktop Branding */}
+          <div className="flex items-center gap-8">
+            <Link href={`/${role.toLowerCase()}/dashboard`} className="transition-opacity hover:opacity-80">
+              <Branding />
+            </Link>
+
+            {/* Desktop Nav Links */}
+            <div className="hidden md:flex md:items-center md:gap-1">
+              {navItems.map((item) => {
+                const isActive = pathname === item.href
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={cn(
+                      "group relative flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors",
+                      isActive ? "text-primary" : "text-zinc-400 hover:text-white"
+                    )}
+                  >
+                    <item.icon className={cn("h-4 w-4 transition-transform group-hover:scale-110", isActive ? "text-primary" : "text-zinc-500 group-hover:text-zinc-300")} />
+                    {item.label}
+                    {isActive && (
+                      <motion.div
+                        layoutId="active-nav"
+                        className="absolute -bottom-[21px] left-0 right-0 h-0.5 bg-primary shadow-[0_0_12px_rgba(var(--primary-rgb),0.5)]"
+                        transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                      />
+                    )}
+                  </Link>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* Desktop Actions */}
+          <div className="hidden md:flex md:items-center md:gap-4">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-zinc-800 text-xs font-bold text-zinc-400">
+              {role[0].toUpperCase()}
+            </div>
+            <Button variant="outline" size="sm" className="h-8 border-white/10 text-xs text-zinc-400 hover:text-white">
+              Log out
+            </Button>
+          </div>
+
+          {/* Mobile Menu Button */}
+          <div className="flex md:hidden">
+            <button
+              onClick={toggleMenu}
+              className="inline-flex items-center justify-center rounded-md p-2 text-zinc-400 hover:bg-zinc-800 hover:text-white focus:outline-none"
+            >
+              <span className="sr-only">Open main menu</span>
+              {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile Menu Overflow */}
+      <AnimatePresence>
+        {isOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={toggleMenu}
+              className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm md:hidden"
+            />
+            <motion.div
+              initial={{ x: "-100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "-100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className="fixed bottom-0 left-0 top-0 z-50 w-[280px] border-r border-white/10 bg-zinc-950 p-6 shadow-2xl md:hidden"
+            >
+              <div className="flex flex-col h-full">
+                <div className="flex items-center justify-between mb-8">
+                  <Branding />
+                  <button onClick={toggleMenu} className="text-zinc-400 hover:text-white">
+                    <X className="h-6 w-6" />
+                  </button>
+                </div>
+
+                <div className="flex-1 space-y-2">
+                  <p className="px-3 text-[10px] font-bold uppercase tracking-widest text-zinc-500">
+                    Menu
+                  </p>
+                  {navItems.map((item) => {
+                    const isActive = pathname === item.href
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={toggleMenu}
+                        className={cn(
+                          "flex items-center gap-3 px-3 py-3 rounded-lg text-base font-medium transition-all active:scale-95",
+                          isActive 
+                            ? "bg-primary/10 text-primary border border-primary/20" 
+                            : "text-zinc-400 hover:bg-white/5 hover:text-white"
+                        )}
+                      >
+                        <item.icon className={cn("h-5 w-5", isActive ? "text-primary" : "text-zinc-500")} />
+                        {item.label}
+                      </Link>
+                    )
+                  })}
+                </div>
+
+                <div className="mt-auto border-t border-white/5 pt-6">
+                  <div className="flex items-center gap-3 px-3 mb-6">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-800 text-sm font-bold text-zinc-400">
+                      {role[0].toUpperCase()}
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-white">{role}</p>
+                      <p className="text-xs text-zinc-500">bookmebus user</p>
+                    </div>
+                  </div>
+                  <Button variant="outline" className="w-full border-white/10 text-zinc-400 hover:bg-white/5 hover:text-white">
+                    Log out
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </nav>
+  )
+}
