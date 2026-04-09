@@ -6,9 +6,30 @@ import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
 import { Checkbox } from '@/components/ui/Checkbox'
 import { Card } from '@/components/ui/Card'
+import { cn } from '@/lib/utils'
 
 export function SignupForm() {
   const [showPassword, setShowPassword] = useState(false)
+  const [password, setPassword] = useState('')
+
+  const calculateStrength = (pass: string) => {
+    if (!pass) return 0
+    let score = 0
+    if (pass.length >= 6) score += 1
+    if (pass.length >= 8) score += 1
+    if (/[A-Z]/.test(pass) && /[a-z]/.test(pass)) score += 1
+    if (/[0-9]/.test(pass) || /[^A-Za-z0-9]/.test(pass)) score += 1
+    return score
+  }
+
+  const strength = calculateStrength(password)
+  const strengthLabels = ['Weak', 'Fair', 'Good', 'Strong']
+  const strengthColors = [
+    'bg-error',
+    'bg-secondary-container',
+    'bg-primary-container',
+    'bg-tertiary-container',
+  ]
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -17,7 +38,7 @@ export function SignupForm() {
   }
 
   return (
-    <Card className="p-8 md:p-12 shadow-ambient border-none bg-surface-container-lowest rounded-[2rem]">
+    <Card className="p-6 md:p-10 shadow-ambient border-none bg-surface-container-lowest rounded-[2rem]">
       <div className="text-center mb-10">
         <h2 className="text-3xl font-bold text-on-surface tracking-tight mb-2">
           Create your account
@@ -49,6 +70,8 @@ export function SignupForm() {
             label="Password"
             type={showPassword ? 'text' : 'password'}
             placeholder="••••••••"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             icon={<span className="material-symbols-outlined">lock</span>}
             required
             rightElement={
@@ -63,15 +86,27 @@ export function SignupForm() {
               </button>
             }
           />
-          {/* Strength Indicator (Mock) */}
+          {/* Strength Indicator (Dynamic) */}
           <div className="flex gap-1.5 px-1 pt-1">
-            <div className="h-1.5 flex-1 rounded-full bg-tertiary-container"></div>
-            <div className="h-1.5 flex-1 rounded-full bg-tertiary-container"></div>
-            <div className="h-1.5 flex-1 rounded-full bg-surface-container-highest"></div>
-            <div className="h-1.5 flex-1 rounded-full bg-surface-container-highest"></div>
+            {[1, 2, 3, 4].map((step) => (
+              <div
+                key={step}
+                className={cn(
+                  'h-1.5 flex-1 rounded-full transition-all duration-500',
+                  strength >= step 
+                    ? strengthColors[strength - 1] 
+                    : 'bg-surface-container-highest'
+                )}
+              />
+            ))}
           </div>
-          <p className="text-[10px] text-tertiary font-bold px-1 uppercase tracking-widest">
-            Strong password achieved
+          <p 
+            className={cn(
+              "text-[10px] font-bold px-1 uppercase tracking-widest transition-colors duration-500",
+              strength > 0 ? "text-on-surface" : "text-on-surface-variant opacity-40"
+            )}
+          >
+            {password ? `${strengthLabels[strength - 1] || 'Weak'} password` : 'Enter a password'}
           </p>
         </div>
 
@@ -116,17 +151,6 @@ export function SignupForm() {
             Log In
           </Link>
         </p>
-      </div>
-
-      <div className="mt-12 pt-8 border-t border-outline-variant/10 flex justify-center gap-8">
-        <div className="flex items-center gap-1.5">
-          <span className="material-symbols-outlined text-tertiary text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>eco</span>
-          <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Carbon Neutral</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <span className="material-symbols-outlined text-primary text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
-          <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Secure Entry</span>
-        </div>
       </div>
     </Card>
   )

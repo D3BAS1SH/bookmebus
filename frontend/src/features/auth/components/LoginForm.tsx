@@ -17,7 +17,7 @@ export function LoginForm() {
   }
 
   return (
-    <Card className="p-8 md:p-10 shadow-ambient border-none bg-surface-container-lowest rounded-[2rem]">
+    <Card className="p-6 md:p-10 shadow-ambient border-none bg-surface-container-lowest rounded-[2rem]">
       <div className="text-center mb-10">
         <h2 className="text-3xl font-bold text-on-surface tracking-tight mb-2">
           Login to your account
