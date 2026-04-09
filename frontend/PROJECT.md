@@ -117,13 +117,14 @@ BookMeBus is a platform that connects bus owners, drivers, and travellers. It so
 - **Seat Exclusivity**: A seat cannot be double-booked for the same journey session.
 
 ### Planned Features / Modules
-- [ ] `[auth]` — login, signup, forgot password (Custom JWT)
+- [x] `[auth]` — login, signup, forgot password (Custom JWT)
+- [x] `[driver]` — driver-specific dashboard and layout
+- [x] `[traveler]` — traveler discovery home and layout
+- [x] `[owner]` — owner fleet overview and layout
 - [ ] `[search]` — route search for boarding/destination
 - [ ] `[booking]` — seat selection and reservation logic
 - [ ] `[payment]` — traveller payment integration
 - [ ] `[tracking]` — real-time WebSocket vehicle position (map view)
-- [ ] `[driver]` — driver-specific actions (location emission, boarding verification)
-- [ ] `[owner]` — owner dashboard (monitoring, analytics)
 
 ---
 
