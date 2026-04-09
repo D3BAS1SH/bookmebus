@@ -11,7 +11,7 @@ interface RoleBaseLayoutProps {
 
 export function RoleBaseLayout({ children, role, navItems }: RoleBaseLayoutProps) {
   return (
-    <div className="relative min-h-screen bg-black text-white selection:bg-primary/30">
+    <div className="relative min-h-screen bg-surface text-on-surface selection:bg-primary/20">
       <RoleNavbar role={role} navItems={navItems} />
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {children}

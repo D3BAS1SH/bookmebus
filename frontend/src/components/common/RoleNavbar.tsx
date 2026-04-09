@@ -27,7 +27,7 @@ export function RoleNavbar({ role, navItems }: RoleNavbarProps) {
   const toggleMenu = () => setIsOpen(!isOpen)
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-white/10 bg-black/60 backdrop-blur-xl">
+    <nav className="sticky top-0 z-50 w-full glass">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Desktop Branding */}
@@ -46,10 +46,10 @@ export function RoleNavbar({ role, navItems }: RoleNavbarProps) {
                     href={item.href}
                     className={cn(
                       "group relative flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors",
-                      isActive ? "text-primary" : "text-zinc-400 hover:text-white"
+                      isActive ? "text-primary" : "text-on-surface-variant hover:text-on-surface"
                     )}
                   >
-                    <item.icon className={cn("h-4 w-4 transition-transform group-hover:scale-110", isActive ? "text-primary" : "text-zinc-500 group-hover:text-zinc-300")} />
+                    <item.icon className={cn("h-4 w-4 transition-transform group-hover:scale-110", isActive ? "text-primary" : "text-on-surface-variant group-hover:text-on-surface")} />
                     {item.label}
                     {isActive && (
                       <motion.div
@@ -66,10 +66,10 @@ export function RoleNavbar({ role, navItems }: RoleNavbarProps) {
 
           {/* Desktop Actions */}
           <div className="hidden md:flex md:items-center md:gap-4">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-zinc-800 text-xs font-bold text-zinc-400">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-container text-xs font-bold text-on-surface-variant uppercase shadow-sm">
               {role[0].toUpperCase()}
             </div>
-            <Button variant="outline" size="sm" className="h-8 border-white/10 text-xs text-zinc-400 hover:text-white">
+            <Button variant="outline" size="sm" className="h-8 border-outline-variant/30 text-xs text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low">
               Log out
             </Button>
           </div>
@@ -103,7 +103,7 @@ export function RoleNavbar({ role, navItems }: RoleNavbarProps) {
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="fixed bottom-0 left-0 top-0 z-50 w-[280px] border-r border-white/10 bg-zinc-950 p-6 shadow-2xl md:hidden"
+              className="fixed bottom-0 left-0 top-0 z-50 w-[280px] border-r border-outline-variant/10 bg-surface-bright p-6 shadow-2xl md:hidden"
             >
               <div className="flex flex-col h-full">
                 <div className="flex items-center justify-between mb-8">
@@ -128,10 +128,10 @@ export function RoleNavbar({ role, navItems }: RoleNavbarProps) {
                           "flex items-center gap-3 px-3 py-3 rounded-lg text-base font-medium transition-all active:scale-95",
                           isActive 
                             ? "bg-primary/10 text-primary border border-primary/20" 
-                            : "text-zinc-400 hover:bg-white/5 hover:text-white"
+                            : "text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface"
                         )}
                       >
-                        <item.icon className={cn("h-5 w-5", isActive ? "text-primary" : "text-zinc-500")} />
+                        <item.icon className={cn("h-5 w-5", isActive ? "text-primary" : "text-on-surface-variant")} />
                         {item.label}
                       </Link>
                     )
@@ -140,15 +140,15 @@ export function RoleNavbar({ role, navItems }: RoleNavbarProps) {
 
                 <div className="mt-auto border-t border-white/5 pt-6">
                   <div className="flex items-center gap-3 px-3 mb-6">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-800 text-sm font-bold text-zinc-400">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-container text-sm font-bold text-on-surface-variant uppercase shadow-sm">
                       {role[0].toUpperCase()}
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-white">{role}</p>
-                      <p className="text-xs text-zinc-500">bookmebus user</p>
+                      <p className="text-sm font-medium text-on-surface">{role}</p>
+                      <p className="text-xs text-on-surface-variant">bookmebus user</p>
                     </div>
                   </div>
-                  <Button variant="outline" className="w-full border-white/10 text-zinc-400 hover:bg-white/5 hover:text-white">
+                  <Button variant="outline" className="w-full border-outline-variant/30 text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface">
                     Log out
                   </Button>
                 </div>

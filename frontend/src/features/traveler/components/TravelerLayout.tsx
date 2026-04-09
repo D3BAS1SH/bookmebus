@@ -7,6 +7,7 @@ import { NavItem } from '@/components/common/RoleNavbar'
 
 const TRAVELER_NAV_ITEMS: NavItem[] = [
   { label: 'Explore', href: '/traveler/home', icon: Search },
+  { label: 'Search a trip', href: '/traveler/search', icon: Search },
   { label: 'My Bookings', href: '/traveler/bookings', icon: Ticket },
   { label: 'Track Bus', href: '/traveler/tracking', icon: Map },
   { label: 'Profile', href: '/traveler/profile', icon: User },
