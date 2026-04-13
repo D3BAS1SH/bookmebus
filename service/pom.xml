@@ -103,9 +103,8 @@
 
         <!-- Flyway core — Boot auto-configures migration runner -->
         <dependency>
-            <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-core</artifactId>
-            <scope>compile</scope>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-flyway</artifactId>
         </dependency>
 
         <!-- Flyway PostgreSQL dialect support (required for Flyway 10+) -->
