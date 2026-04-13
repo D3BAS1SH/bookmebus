@@ -76,6 +76,8 @@
       org.springframework.security: debug
       org.hibernate.sql: debug
       org.hibernate.type.descriptor.sql: trace
-      org.flywaydb: info
+      org.flywaydb: debug
+      flyway: debug
+      root: info
     pattern:
       console: "%d{HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
