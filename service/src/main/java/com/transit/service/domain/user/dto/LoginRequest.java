@@ -3,7 +3,7 @@ package com.transit.service.domain.user.dto;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
-record LoginRequest (
+public record LoginRequest (
         @NotBlank(message = "Email is required")
         @Email(message = "Email must be valid")
         String email,

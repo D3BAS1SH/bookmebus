@@ -5,7 +5,7 @@ import com.transit.service.domain.user.UserRole;
 import java.time.Instant;
 import java.util.UUID;
 
-record UserResponse (
+public record UserResponse (
         UUID userId,
         String fullName,
         String email,
