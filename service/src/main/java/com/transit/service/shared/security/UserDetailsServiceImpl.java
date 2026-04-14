@@ -1,6 +1,5 @@
 package com.transit.service.shared.security;
 
-import com.transit.service.domain.user.User;
 import com.transit.service.domain.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,12 +10,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class UserDetailsServceImpl implements UserDetailsService {
+public class UserDetailsServiceImpl implements UserDetailsService {
     private final UserRepository userRepository;
 
     @Override
     @Transactional
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email).orElseThrow(()-> new UsernameNotFoundException("No user found with email: " + email));
+        return userRepository.findByEmail(email).orElseThrow(()-> new UsernameNotFoundException("No user found with email: " + email));
     }
 }
