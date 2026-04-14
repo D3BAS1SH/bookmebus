@@ -1,4 +1,7 @@
 package com.transit.service.domain.user;
 
-public class UserRole {
+public enum UserRole {
+    OWNER,
+    DRIVER,
+    TRAVELER
 }
