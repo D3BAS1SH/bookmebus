@@ -1,5 +1,6 @@
 package com.transit.service.domain.user;
 
+import com.transit.service.domain.bus.Bus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -9,6 +10,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -46,6 +48,10 @@ public class User implements UserDetails {
     @Column(name = "active", nullable = false)
     @Builder.Default
     private boolean isActive = true;
+
+    @OneToMany(mappedBy = "owner")
+    @Builder.Default
+    private List<Bus> buses = new ArrayList<>();
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
