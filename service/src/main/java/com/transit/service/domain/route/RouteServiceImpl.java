@@ -14,32 +14,44 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 @Transactional
-public class RouteServiceImpl implements RouteService{
+public class RouteServiceImpl implements RouteService {
     private final RouteRepository routeRepository;
     private final RouteStopRepository routeStopRepository;
     private final LocationRepository locationRepository;
     private final UserRepository userRepository;
 
     @Override
+    @Transactional
     public RouteResponse createRoute(RouteRequest routeRequest, UUID ownerId) {
-        User owner = userRepository.findById(ownerId).orElseThrow(()-> new ResourceNotFoundException("User","id",ownerId));
+        User owner = this.userRepository.findById(ownerId).orElseThrow(()-> new ResourceNotFoundException("User","id",ownerId));
         Route route = Route.builder()
                 .owner(owner)
                 .routeName(routeRequest.getRouteName())
                 .stops(new ArrayList<>())
                 .build();
+        // Get all locations Ids
+        List<UUID> locationIds = routeRequest.getRouteStops().stream().map(RouteStopRequest::getLocationId).toList();
+
+        // Get Locations from locationIds
+        List<Location> locations = this.locationRepository.findAllById(locationIds);
+
+        Map<UUID,Location> locationMap = locations.stream().collect(Collectors.toMap(Location::getLocationId,location -> location));
+
         for(RouteStopRequest routeStopRequest : routeRequest.getRouteStops() ){
-            Location location = this.locationRepository
-                    .findById(routeStopRequest.getLocationId())
-                    .orElseThrow(
-                            ()-> new ResourceNotFoundException("Location","id",routeStopRequest.getLocationId())
-                    );
+            Location location = locationMap.get(routeStopRequest.getLocationId());
+
+            if(location == null){
+                throw new ResourceNotFoundException("Location","id",routeStopRequest.getLocationId());
+            }
+
             RouteStop stop = RouteStop.builder()
                     .route(route)
                     .location(location)
@@ -48,11 +60,83 @@ public class RouteServiceImpl implements RouteService{
                     .isBoardingPoint(routeStopRequest.isBoardingPoint())
                     .isDroppingPoint(routeStopRequest.isDroppingPoint())
                     .build();
+
             route.getStops().add(stop);
         }
         Route saved = this.routeRepository.save(route);
         log.info("Route created: {} by owner: {}", saved.getRouteId(), ownerId);
         return toResponse(saved);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public RouteResponse getRoute(UUID routeId){
+        Route route = this.routeRepository.findById(routeId).orElseThrow(()-> new ResourceNotFoundException("Route","id",routeId));
+        return toResponse(route);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<RouteResponse> getOwnerRoutes(UUID ownerId) {
+        List<Route> routes = this.routeRepository.findByOwner_id(ownerId);
+        if(routes.isEmpty()){ throw new ResourceNotFoundException("Route","id",ownerId); }
+        List<RouteResponse> routeResponses = new ArrayList<>();
+        for (Route route : routes) {
+            routeResponses.add(toResponse(route));
+        }
+        return routeResponses;
+    }
+
+    @Override
+    @Transactional
+    public RouteResponse addStop(UUID routeId, RouteStopRequest routeStopRequest){
+
+        Location location = this.locationRepository.findById(routeStopRequest.getLocationId())
+                .orElseThrow(()-> new ResourceNotFoundException("Location","id",routeStopRequest.getLocationId()));
+
+        if(!this.routeRepository.existsById(routeId)){
+            throw new ResourceNotFoundException("Route","id",routeId);
+        }
+
+        /**
+         * Shift existing sequences to make room for the new stop
+         * NOTE: Because of `clearAutomatically = true` in the repository,
+         * this clears Hibernate's cache so we don't accidentally save stale data.
+         */
+        this.routeStopRepository.shiftSequencesDown(routeId, routeStopRequest.getSequenceOrder());
+
+        Route routeProxy = this.routeRepository.getReferenceById(routeId);
+        RouteStop newStop = RouteStop.builder()
+                .route(routeProxy)
+                .location(location)
+                .sequenceOrder(routeStopRequest.getSequenceOrder())
+                .distanceFromOrigin(routeStopRequest.getDistanceFromOrigin())
+                .isBoardingPoint(routeStopRequest.isBoardingPoint())
+                .isDroppingPoint(routeStopRequest.isDroppingPoint())
+                .build();
+        this.routeStopRepository.save(newStop);
+        Route udpatedRoute = this.routeRepository.findById(routeId).orElseThrow(()-> new ResourceNotFoundException("Route","id",routeId));
+        return toResponse(udpatedRoute);
+    }
+
+    @Override
+    @Transactional
+    public RouteResponse removeStop(UUID routeId, UUID routeStopId){
+        RouteStop routeStopToDelete = this.routeStopRepository.findById(routeStopId).orElseThrow(()-> new ResourceNotFoundException("RouteStop","id",routeStopId));
+        if(!routeStopToDelete.getRoute().getRouteId().equals(routeId)){
+            throw new IllegalArgumentException("This RouteStop does not belong to the specified Route");
+        }
+        int sequenceToDelete = routeStopToDelete.getSequenceOrder();
+        this.routeStopRepository.delete(routeStopToDelete);
+        this.routeStopRepository.flush();
+        this.routeStopRepository.shiftSequencesUp(routeId, sequenceToDelete);
+        Route updatedRoute = this.routeRepository.findById(routeId).orElseThrow(()-> new ResourceNotFoundException("Route","id",routeId));
+        return toResponse(updatedRoute);
+    }
+
+    @Override
+    public void deleteRoute(UUID routeId){
+        this.routeRepository.deleteById(routeId);
     }
 
     // Private helpers

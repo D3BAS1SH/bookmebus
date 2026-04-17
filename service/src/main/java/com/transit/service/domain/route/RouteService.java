@@ -12,5 +12,6 @@ public interface RouteService {
     RouteResponse getRoute(UUID routeId);
     List<RouteResponse> getOwnerRoutes(UUID ownerId);
     RouteResponse addStop(UUID routeId, RouteStopRequest routeStopRequest);
+    RouteResponse removeStop(UUID routeId, UUID routeStopId);
     void deleteRoute(UUID routeId);
 }
