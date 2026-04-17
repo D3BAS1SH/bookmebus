@@ -11,6 +11,7 @@ import java.util.UUID;
 public class RouteStopResponse {
     private UUID routeStopId;
     private UUID routeId;
+    private UUID locationId;
     private String locationName;
     private Integer sequenceOrder;
     private BigDecimal distanceFromOrigin;
