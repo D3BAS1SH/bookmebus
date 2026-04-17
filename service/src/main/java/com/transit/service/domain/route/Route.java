@@ -40,9 +40,9 @@ public class Route {
 
     @CreationTimestamp
     @Column(name = "created_at",updatable = false)
-    private Instant createAt;
+    private Instant createdAt;
 
     @UpdateTimestamp
     @Column(name = "updated_at")
-    private Instant updateAt;
+    private Instant updatedAt;
 }
