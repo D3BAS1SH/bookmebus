@@ -37,4 +37,12 @@ public interface RouteStopRepository extends JpaRepository<RouteStop, UUID> {
     @Query("UPDATE RouteStop rs SET rs.sequenceOrder = rs.sequenceOrder - 1 " +
             "WHERE rs.route.routeId = :routeId AND rs.sequenceOrder > :newSequence")
     void shiftSequencesUp(@Param("routeId") UUID routeId, @Param("newSequence") int newSequence);
+
+    /**
+     * Checks if a specific location is currently being used as a stop in any route.
+     * Used to prevent deleting locations that are in active use.
+     * * @param locationId The ID of the location to check
+     * @return true if the location is attached to at least one RouteStop, false otherwise
+     */
+    boolean existsByLocation_LocationId(UUID locationId);
 }
