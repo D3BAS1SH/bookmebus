@@ -79,7 +79,7 @@ public class RouteServiceImpl implements RouteService {
     @Transactional(readOnly = true)
     public List<RouteResponse> getOwnerRoutes(UUID ownerId) {
         List<Route> routes = this.routeRepository.findByOwner_id(ownerId);
-        if(routes.isEmpty()){ throw new ResourceNotFoundException("Route","id",ownerId); }
+        if(routes.isEmpty()){ return new ArrayList<>(); }
         List<RouteResponse> routeResponses = new ArrayList<>();
         for (Route route : routes) {
             routeResponses.add(toResponse(route));
@@ -135,7 +135,10 @@ public class RouteServiceImpl implements RouteService {
     }
 
     @Override
-    public void deleteRoute(UUID routeId){
+    public void deleteRoute(UUID ownerId, UUID routeId){
+        if (!this.routeRepository.existsByRouteIdAndOwner_Id(routeId, ownerId)) {
+            throw new IllegalArgumentException("Route not found or does not belong to you");
+        }
         this.routeRepository.deleteById(routeId);
     }
 

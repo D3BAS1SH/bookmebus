@@ -7,4 +7,6 @@ import java.util.UUID;
 
 public interface RouteRepository extends JpaRepository<Route, UUID> {
     List<Route> findByOwner_id(UUID id);
+
+    boolean existsByRouteIdAndOwner_Id(UUID routeId, UUID ownerId);
 }
