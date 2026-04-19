@@ -2,9 +2,9 @@ package com.transit.service.domain.route;
 
 import com.transit.service.domain.route.dto.LocationRequest;
 import com.transit.service.domain.route.dto.LocationResponse;
+import com.transit.service.domain.route.dto.LocationUpdateRequest;
 import com.transit.service.shared.response.ApiResponse;
 import jakarta.validation.Valid;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -41,7 +41,7 @@ public class LocationController {
     }
 
     @PatchMapping("/{locationId}")
-    public ResponseEntity<ApiResponse<LocationResponse>> updateLocation(@PathVariable UUID locationId, @Valid @RequestBody LocationRequest locationRequest) {
+    public ResponseEntity<ApiResponse<LocationResponse>> updateLocation(@PathVariable UUID locationId, @Valid @RequestBody LocationUpdateRequest locationRequest) {
         LocationResponse locationResponse = locationService.updateLocation(locationId, locationRequest);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.ok(locationResponse));
     }

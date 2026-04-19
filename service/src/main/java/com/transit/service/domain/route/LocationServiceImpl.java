@@ -2,6 +2,7 @@ package com.transit.service.domain.route;
 
 import com.transit.service.domain.route.dto.LocationRequest;
 import com.transit.service.domain.route.dto.LocationResponse;
+import com.transit.service.domain.route.dto.LocationUpdateRequest;
 import com.transit.service.shared.exception.DuplicateResourceException;
 import com.transit.service.shared.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -57,7 +58,7 @@ public class LocationServiceImpl implements LocationService{
 
     @Override
     @Transactional
-    public LocationResponse updateLocation(UUID locationId, LocationRequest locationRequest){
+    public LocationResponse updateLocation(UUID locationId, LocationUpdateRequest locationRequest){
         Location locationToUpdate = this.locationRepository.findById(locationId).orElseThrow(()-> new ResourceNotFoundException("location","id",locationId));
         if(!locationToUpdate.getLocationName().equalsIgnoreCase(locationRequest.getLocationName())){
             if (this.locationRepository.existsByLocationNameIgnoreCase(locationRequest.getLocationName())) {
@@ -65,10 +66,12 @@ public class LocationServiceImpl implements LocationService{
             }
             locationToUpdate.setLocationName(locationRequest.getLocationName());
         }
-
-        locationToUpdate.setLatitude(locationRequest.getLatitude());
-        locationToUpdate.setLongitude(locationRequest.getLongitude());
-
+        if (locationRequest.getLatitude() != null) {
+            locationToUpdate.setLatitude(locationRequest.getLatitude());
+        }
+        if (locationRequest.getLongitude() != null) {
+            locationToUpdate.setLongitude(locationRequest.getLongitude());
+        }
         return this.toResponse(locationToUpdate);
     }
 
