@@ -25,10 +25,10 @@ public class Location {
     @Column(name = "location_name", nullable = false, length = 150)
     private String locationName;
 
-    @Column(precision = 10, scale = 2)
+    @Column(precision = 10, scale = 7)
     private BigDecimal latitude;
 
-    @Column(precision = 10, scale = 2)
+    @Column(precision = 10, scale = 7)
     private BigDecimal longitude;
 
     @CreationTimestamp
