@@ -45,4 +45,26 @@ public interface RouteStopRepository extends JpaRepository<RouteStop, UUID> {
      * @return true if the location is attached to at least one RouteStop, false otherwise
      */
     boolean existsByLocation_LocationId(UUID locationId);
+
+    /**
+     * Valid boarding stops for a route (is_boarding_point = true).
+     * Backed by idx_route_stop_boarding partial index (V6 migration).
+     */
+    @Query("""
+        SELECT rs FROM RouteStop rs
+        WHERE rs.route.routeId = :routeId AND rs.isBoardingPoint = true
+        ORDER BY rs.sequenceOrder ASC
+        """)
+    List<RouteStop> findBoardingStopsByRouteId(@Param("routeId") UUID routeId);
+
+    /**
+     * Valid dropoff stops for a route (is_dropping_point = true).
+     * Backed by idx_route_stop_dropping partial index (V6 migration).
+     */
+    @Query("""
+        SELECT rs FROM RouteStop rs
+        WHERE rs.route.routeId = :routeId AND rs.isDroppingPoint = true
+        ORDER BY rs.sequenceOrder ASC
+        """)
+    List<RouteStop> findDroppingStopsByRouteId(@Param("routeId") UUID routeId);
 }
