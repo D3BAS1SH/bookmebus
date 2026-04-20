@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface TripRepository extends JpaRepository<Trip, UUID> {
@@ -29,4 +30,14 @@ public interface TripRepository extends JpaRepository<Trip, UUID> {
 
     @Query("SELECT t FROM Trip t WHERE t.bus.owner.id = :ownerId")
     Page<Trip> findByOwnerId(@Param("ownerId") UUID ownerId, Pageable pageable);
+
+    @Query("""
+        SELECT t FROM Trip t
+        JOIN FETCH t.bus b
+        JOIN FETCH b.owner
+        JOIN FETCH t.route
+        JOIN FETCH t.driver
+        WHERE t.tripId = :tripId
+    """)
+    Optional<Trip> findByIdWithDetails(@Param("tripId") UUID tripId);
 }
