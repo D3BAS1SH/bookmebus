@@ -23,7 +23,7 @@ public class ApiResponse<T> {
     private Instant timestamp = Instant.now();
 
     /**
-     *  Use when request succeeded and you have data to return
+     *  Use when request succeeded, and you have data to return
      *  Example: return ApiResponse.ok(userResponse);
      */
     public static <T> ApiResponse<T> ok(T data) {
@@ -31,8 +31,8 @@ public class ApiResponse<T> {
     }
 
     /**
-     * Use when request succeeded but there's no body to return
-     * Example: DELETE endpoints — 204 No Conten
+     * Use when request succeeded but there's nobody to return
+     * Example: DELETE endpoints — 204 No Content
      */
     public static <T> ApiResponse<T> ok(String message) {
         return ApiResponse.<T>builder().success(true).message(message).build();
