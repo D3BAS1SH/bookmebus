@@ -64,10 +64,10 @@ public class Booking {
     @Column(name = "booking_code", nullable = false, length = 8, unique = true)
     private String bookingCode;
 
-    @Column(name = "qr_code_path", nullable = false, length = 500)
+    @Column(name = "qr_code_path", length = 500)
     private String qrCodepath;
 
-    @Column(name = "ticket_pdf_path", nullable = false, length = 500)
+    @Column(name = "ticket_pdf_path", length = 500)
     private String ticketPdfPath;
 
     @Column(name = "payment_txn_id", nullable = false, length = 100)
@@ -86,6 +86,6 @@ public class Booking {
     private Instant bookingAt;
 
     @UpdateTimestamp
-    @Column(name = "booked_at")
+    @Column(name = "updated_at")
     private Instant updatedAt;
 }

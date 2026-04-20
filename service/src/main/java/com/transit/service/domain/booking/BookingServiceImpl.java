@@ -251,6 +251,9 @@ public class BookingServiceImpl implements BookingService {
                 .dropoffSeq(booking.getDropoffSequence())
                 .totalPrice(booking.getTotalPrice())
                 .bookingCode(booking.getBookingCode())
+                .qrCodePath(booking.getQrCodepath())
+                .ticketPdfPath(booking.getTicketPdfPath())
+                .didBoard(booking.isDidBoard())
                 .status(booking.getBookingStatus())
                 .bookedAt(booking.getBookingAt())
                 .build();

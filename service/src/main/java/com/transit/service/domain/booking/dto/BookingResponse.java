@@ -25,6 +25,10 @@ public class BookingResponse {
     private BigDecimal totalPrice;
     private String bookingCode;
 
+    private String qrCodePath;
+    private String ticketPdfPath;
+    private boolean didBoard;
+
     private BookingStatus status;
     private Instant bookedAt;
 }
