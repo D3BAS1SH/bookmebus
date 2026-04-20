@@ -1,5 +1,6 @@
 package com.transit.service.domain.booking;
 
+import com.transit.service.domain.trip.Trip;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
