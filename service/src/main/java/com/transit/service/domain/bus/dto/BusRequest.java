@@ -13,7 +13,7 @@ public class BusRequest {
     @Size(max = 20, message = "Registration number must not exceed 20 characters")
     private String registrationNumber;
 
-    @NotBlank(message = "Vehilce Number is required")
+    @NotBlank(message = "Vehicle Number is required")
     @Size(max = 20, message = "Vehicle number must not exceed 20 characters")
     private String vehicleNumber;
 
