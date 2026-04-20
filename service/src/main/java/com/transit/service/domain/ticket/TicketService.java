@@ -1,4 +1,4 @@
 package com.transit.service.domain.ticket;
 
-public class TicketService {
+public interface TicketService {
 }

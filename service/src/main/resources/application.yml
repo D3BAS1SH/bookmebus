@@ -54,7 +54,16 @@
     jwt:
       secret-key: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
       access-token-expiry: PT24H
-      refresh-token-expiry: 604800000
+    ticket:
+      # Directory paths for generated files.
+      # In production, point to a persistent volume mount (e.g. /var/transit/tickets).
+      # In local dev, relative paths are fine — they resolve from the working directory.
+      qr-storage-path: tickets/qr
+      pdf-storage-path: tickets/pdf
+
+      # QR image dimensions in pixels (250×250 is readable on most mobile screens)
+      qr-width: 250
+      qr-height: 250
 
   management:
     endpoints:
