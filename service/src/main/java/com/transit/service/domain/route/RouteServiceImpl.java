@@ -7,6 +7,8 @@ import com.transit.service.domain.route.dto.RouteStopResponse;
 import com.transit.service.domain.user.User;
 import com.transit.service.domain.user.UserRepository;
 import com.transit.service.shared.exception.ResourceNotFoundException;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,6 +25,10 @@ import java.util.stream.Collectors;
 @Slf4j
 @Transactional
 public class RouteServiceImpl implements RouteService {
+
+    @PersistenceContext
+    private EntityManager entityManager;
+
     private final RouteRepository routeRepository;
     private final RouteStopRepository routeStopRepository;
     private final LocationRepository locationRepository;
@@ -47,7 +53,7 @@ public class RouteServiceImpl implements RouteService {
 
         for(RouteStopRequest routeStopRequest : routeRequest.getRouteStops() ){
             Location location = locationMap.get(routeStopRequest.getLocationId());
-
+            log.debug("Boarding Point: "+routeStopRequest.isBoardingPoint(),routeStopRequest.isBoardingPoint());
             if(location == null){
                 throw new ResourceNotFoundException("Location","id",routeStopRequest.getLocationId());
             }
@@ -57,8 +63,8 @@ public class RouteServiceImpl implements RouteService {
                     .location(location)
                     .sequenceOrder(routeStopRequest.getSequenceOrder())
                     .distanceFromOrigin(routeStopRequest.getDistanceFromOrigin())
-                    .isBoardingPoint(routeStopRequest.isBoardingPoint())
-                    .isDroppingPoint(routeStopRequest.isDroppingPoint())
+                    .boardingPoint(routeStopRequest.isBoardingPoint())
+                    .droppingPoint(routeStopRequest.isDroppingPoint())
                     .build();
 
             route.getStops().add(stop);
@@ -105,14 +111,16 @@ public class RouteServiceImpl implements RouteService {
          */
         this.routeStopRepository.shiftSequencesDown(routeId, routeStopRequest.getSequenceOrder());
 
+        this.entityManager.flush();
+
         Route routeProxy = this.routeRepository.getReferenceById(routeId);
         RouteStop newStop = RouteStop.builder()
                 .route(routeProxy)
                 .location(location)
                 .sequenceOrder(routeStopRequest.getSequenceOrder())
                 .distanceFromOrigin(routeStopRequest.getDistanceFromOrigin())
-                .isBoardingPoint(routeStopRequest.isBoardingPoint())
-                .isDroppingPoint(routeStopRequest.isDroppingPoint())
+                .boardingPoint(routeStopRequest.isBoardingPoint())
+                .droppingPoint(routeStopRequest.isDroppingPoint())
                 .build();
         this.routeStopRepository.save(newStop);
         Route udpatedRoute = this.routeRepository.findById(routeId).orElseThrow(()-> new ResourceNotFoundException("Route","id",routeId));

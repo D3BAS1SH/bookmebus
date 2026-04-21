@@ -16,6 +16,6 @@ public class RouteStopRequest {
     private Integer sequenceOrder;
 
     private BigDecimal distanceFromOrigin;
-    private boolean isBoardingPoint;
-    private boolean isDroppingPoint;
+    private boolean boardingPoint;
+    private boolean droppingPoint;
 }

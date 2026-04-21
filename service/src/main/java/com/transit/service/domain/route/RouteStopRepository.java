@@ -52,7 +52,7 @@ public interface RouteStopRepository extends JpaRepository<RouteStop, UUID> {
      */
     @Query("""
         SELECT rs FROM RouteStop rs
-        WHERE rs.route.routeId = :routeId AND rs.isBoardingPoint = true
+        WHERE rs.route.routeId = :routeId AND rs.boardingPoint = true
         ORDER BY rs.sequenceOrder ASC
         """)
     List<RouteStop> findBoardingStopsByRouteId(@Param("routeId") UUID routeId);
@@ -63,7 +63,7 @@ public interface RouteStopRepository extends JpaRepository<RouteStop, UUID> {
      */
     @Query("""
         SELECT rs FROM RouteStop rs
-        WHERE rs.route.routeId = :routeId AND rs.isDroppingPoint = true
+        WHERE rs.route.routeId = :routeId AND rs.droppingPoint = true
         ORDER BY rs.sequenceOrder ASC
         """)
     List<RouteStop> findDroppingStopsByRouteId(@Param("routeId") UUID routeId);

@@ -43,11 +43,11 @@ public class RouteStop {
 
     @Column(name = "is_boarding_point", nullable = false)
     @Builder.Default
-    private boolean isBoardingPoint = true;
+    private boolean boardingPoint = true;
 
     @Column(name = "is_dropping_point", nullable = false)
     @Builder.Default
-    private boolean isDroppingPoint = true;
+    private boolean droppingPoint = true;
 
     @CreationTimestamp()
     @Column(name = "created_at", updatable = false)
