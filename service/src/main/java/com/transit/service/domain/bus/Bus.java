@@ -1,12 +1,10 @@
 package com.transit.service.domain.bus;
 
 import com.transit.service.domain.user.User;
-import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.type.SqlTypes;
 
@@ -45,8 +43,10 @@ public class Bus {
     private SeatLayoutConfig seatLayout;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "status", nullable = false)
-    private BusStatus busStatus;
+    @Builder.Default
+    private BusStatus busStatus = BusStatus.ACTIVE;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false)
