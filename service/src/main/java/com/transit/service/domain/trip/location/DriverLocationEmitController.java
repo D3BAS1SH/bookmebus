@@ -41,7 +41,7 @@ import java.util.UUID;
 @RequestMapping("/api/v1/trips")
 @RequiredArgsConstructor
 @Slf4j
-public class LocationController {
+public class DriverLocationEmitController {
 
     private static final String LOCATION_KEY_PREFIX = "trip:location:";
     private static final Duration LOCATION_TTL      = Duration.ofMinutes(5);
@@ -64,7 +64,7 @@ public class LocationController {
     @PreAuthorize("hasRole('DRIVER')")
     public ApiResponse<LocationMessage> emitLocation(
             @PathVariable UUID tripId,
-            @Valid @RequestBody LocationRequest request,
+            @Valid @RequestBody DriverLocationEmitRequest request,
             @AuthenticationPrincipal User driver
     ) {
         // 1. Resolve trip

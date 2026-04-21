@@ -25,7 +25,7 @@ import java.math.BigDecimal;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class LocationRequest {
+public class DriverLocationEmitRequest {
     @NotNull(message = "Latitude is required")
     @DecimalMin(value = "-90.0",  message = "Latitude must be >= -90")
     @DecimalMax(value = "90.0",   message = "Latitude must be <= 90")
