@@ -159,10 +159,10 @@ public class TripServiceImpl implements TripService {
         if (trip.getStatus().equals(TripStatus.COMPLETED))
             throw new BusinessException("Cannot cancel a completed trip");
 
-        if (trip.getStatus().equals(TripStatus.CANCELLED))
+        if (trip.getStatus().equals(TripStatus.CANCELED))
             throw new BusinessException("Trip is already canceled");
 
-        trip.setStatus(TripStatus.CANCELLED);
+        trip.setStatus(TripStatus.CANCELED);
         tripRepository.save(trip);
 
         log.info("Trip canceled: tripId={}", tripId);

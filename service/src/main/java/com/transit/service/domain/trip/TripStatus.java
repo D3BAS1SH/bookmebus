@@ -4,5 +4,5 @@ public enum TripStatus {
     SCHEDULED,
     IN_TRANSIT,
     COMPLETED,
-    CANCELLED
+    CANCELED
 }
