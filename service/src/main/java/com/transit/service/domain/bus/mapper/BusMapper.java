@@ -22,6 +22,7 @@ public interface BusMapper {
      * Maps Bus entity to BusResponse DTO.
      * Flattens owner → ownerId and ownerEmail.
      */
+    @Mapping(source = "id",          target = "busId")
     @Mapping(source = "owner.id",    target = "ownerId")
     @Mapping(source = "owner.email", target = "ownerEmail")
     @Mapping(source = "busStatus",   target = "status")
