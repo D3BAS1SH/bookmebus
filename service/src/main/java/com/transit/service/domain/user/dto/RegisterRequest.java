@@ -3,6 +3,7 @@ package com.transit.service.domain.user.dto;
 import com.transit.service.domain.user.UserRole;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public record RegisterRequest (
@@ -23,6 +24,6 @@ public record RegisterRequest (
         @Size(min = 8, max = 30, message = "Password length must be between 8 and 30")
         String password,
 
-        @NotBlank(message = "Role is required")
+        @NotNull(message = "Role is required")
         UserRole role
 ){}
