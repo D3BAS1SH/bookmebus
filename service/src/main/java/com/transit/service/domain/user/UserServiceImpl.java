@@ -25,7 +25,7 @@ public class UserServiceImpl implements UserService {
 
     // Register User
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public UserResponse register(RegisterRequest registerRequest) {
         if(userRepository.existsByEmail(registerRequest.email())){
             throw new BookingConflictException("Email Already Exists: "+registerRequest.email());
@@ -48,7 +48,7 @@ public class UserServiceImpl implements UserService {
 
     // Login
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public UserResponse login(LoginRequest loginRequest) {
         if(!userRepository.existsByEmail(loginRequest.email())){
             throw new BookingConflictException("Email does not exist: "+loginRequest.email());
