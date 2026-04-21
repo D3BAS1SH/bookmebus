@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -40,4 +41,15 @@ public interface TripRepository extends JpaRepository<Trip, UUID> {
         WHERE t.tripId = :tripId
     """)
     Optional<Trip> findByIdWithDetails(@Param("tripId") UUID tripId);
+
+    /**
+     * Returns all trips currently IN_TRANSIT.
+     * Used by ProximityScheduler every 60s to find active trips.
+     * Spring Data derives the query automatically from the method name.
+     */
+    @Query(
+            value = "SELECT * FROM trip WHERE status = CAST(:status AS trip_status)",
+            nativeQuery = true
+    )
+    List<Trip> findByStatus(@Param("status") String status);
 }
