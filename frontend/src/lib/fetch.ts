@@ -18,6 +18,7 @@ async function apiFetch<T>(
 
   const res = await fetch(`${baseUrl}${path}`, {
     ...init,
+    credentials: 'include', // Ensure cookies are sent with BFF calls
     headers: {
       'Content-Type': 'application/json',
       ...init.headers,
@@ -29,6 +30,12 @@ async function apiFetch<T>(
   })
 
   if (!res.ok) {
+    // Handle 401 — redirect to login on the client
+    if (res.status === 401 && typeof window !== 'undefined') {
+      window.location.href = '/login'
+      throw new Error('Session expired')
+    }
+
     const error = await res.json().catch(() => ({}))
     throw new Error(error?.message ?? `HTTP ${res.status}`)
   }

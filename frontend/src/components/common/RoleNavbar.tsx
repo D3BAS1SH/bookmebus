@@ -2,12 +2,13 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Menu, X, LucideIcon } from 'lucide-react'
+import { Menu, X, LucideIcon, LogOut } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Branding } from './Branding'
 import { Button } from '@/components/ui/Button'
+import { useAuthStore } from '@/features/auth/store/authStore'
 
 export interface NavItem {
   label: string
@@ -23,8 +24,26 @@ interface RoleNavbarProps {
 export function RoleNavbar({ role, navItems }: RoleNavbarProps) {
   const [isOpen, setIsOpen] = useState(false)
   const pathname = usePathname()
+  const router = useRouter()
+
+  const user = useAuthStore((s) => s.user)
+  const logout = useAuthStore((s) => s.logout)
+  const isLoading = useAuthStore((s) => s.isLoading)
+
+  const displayName = user?.fullName || role
+  const initials = displayName
+    .split(' ')
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2)
 
   const toggleMenu = () => setIsOpen(!isOpen)
+
+  const handleLogout = async () => {
+    await logout()
+    router.push('/login')
+  }
 
   return (
     <nav className="sticky top-0 z-50 w-full glass">
@@ -66,10 +85,25 @@ export function RoleNavbar({ role, navItems }: RoleNavbarProps) {
 
           {/* Desktop Actions */}
           <div className="hidden md:flex md:items-center md:gap-4">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-container text-xs font-bold text-on-surface-variant uppercase shadow-sm">
-              {role[0].toUpperCase()}
+            <div className="flex items-center gap-3">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary uppercase shadow-sm">
+                {initials}
+              </div>
+              {user && (
+                <div className="hidden lg:block">
+                  <p className="text-sm font-semibold text-on-surface leading-tight">{user.fullName}</p>
+                  <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">{user.role}</p>
+                </div>
+              )}
             </div>
-            <Button variant="outline" size="sm" className="h-8 border-outline-variant/30 text-xs text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleLogout}
+              disabled={isLoading}
+              className="h-8 border-outline-variant/30 text-xs text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low gap-1.5"
+            >
+              <LogOut className="h-3.5 w-3.5" />
               Log out
             </Button>
           </div>
@@ -78,7 +112,7 @@ export function RoleNavbar({ role, navItems }: RoleNavbarProps) {
           <div className="flex md:hidden">
             <button
               onClick={toggleMenu}
-              className="inline-flex items-center justify-center rounded-md p-2 text-zinc-400 hover:bg-zinc-800 hover:text-white focus:outline-none"
+              className="inline-flex items-center justify-center rounded-md p-2 text-on-surface-variant hover:bg-surface-container hover:text-on-surface focus:outline-none"
             >
               <span className="sr-only">Open main menu</span>
               {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -108,13 +142,13 @@ export function RoleNavbar({ role, navItems }: RoleNavbarProps) {
               <div className="flex flex-col h-full">
                 <div className="flex items-center justify-between mb-8">
                   <Branding />
-                  <button onClick={toggleMenu} className="text-zinc-400 hover:text-white">
+                  <button onClick={toggleMenu} className="text-on-surface-variant hover:text-on-surface">
                     <X className="h-6 w-6" />
                   </button>
                 </div>
 
                 <div className="flex-1 space-y-2">
-                  <p className="px-3 text-[10px] font-bold uppercase tracking-widest text-zinc-500">
+                  <p className="px-3 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/50">
                     Menu
                   </p>
                   {navItems.map((item) => {
@@ -138,17 +172,27 @@ export function RoleNavbar({ role, navItems }: RoleNavbarProps) {
                   })}
                 </div>
 
-                <div className="mt-auto border-t border-white/5 pt-6">
+                <div className="mt-auto border-t border-outline-variant/10 pt-6">
                   <div className="flex items-center gap-3 px-3 mb-6">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-container text-sm font-bold text-on-surface-variant uppercase shadow-sm">
-                      {role[0].toUpperCase()}
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary uppercase shadow-sm">
+                      {initials}
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-on-surface">{role}</p>
-                      <p className="text-xs text-on-surface-variant">bookmebus user</p>
+                      <p className="text-sm font-medium text-on-surface">
+                        {user?.fullName || role}
+                      </p>
+                      <p className="text-xs text-on-surface-variant">
+                        {user?.email || 'bookmebus user'}
+                      </p>
                     </div>
                   </div>
-                  <Button variant="outline" className="w-full border-outline-variant/30 text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface">
+                  <Button
+                    variant="outline"
+                    onClick={handleLogout}
+                    disabled={isLoading}
+                    className="w-full border-outline-variant/30 text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface gap-2"
+                  >
+                    <LogOut className="h-4 w-4" />
                     Log out
                   </Button>
                 </div>
