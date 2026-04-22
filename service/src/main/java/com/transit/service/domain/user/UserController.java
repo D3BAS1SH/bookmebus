@@ -2,16 +2,17 @@ package com.transit.service.domain.user;
 
 import com.transit.service.domain.user.dto.LoginRequest;
 import com.transit.service.domain.user.dto.RegisterRequest;
+import com.transit.service.domain.user.dto.UserInfo;
 import com.transit.service.domain.user.dto.UserResponse;
 import com.transit.service.shared.response.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -35,5 +36,11 @@ public class UserController {
     public ResponseEntity<ApiResponse<UserResponse>> login(@Valid @RequestBody LoginRequest loginRequest) {
         UserResponse userResponse = userService.login(loginRequest);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.ok(userResponse));
+    }
+
+    @GetMapping("/drivers")
+    @PreAuthorize("hasRole('OWNER')")
+    public ResponseEntity<ApiResponse<List<UserInfo>>> getAllDrivers() {
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.ok(userService.getAllDrivers()));
     }
 }
