@@ -13,6 +13,7 @@ import {
   useCreateTrip,
   useTripStatusAction,
   useDeleteTrip,
+  useDrivers,
 } from '@/features/trips/hooks/useTrips'
 import { useOwnerRoutes } from '@/features/routes/hooks/useRoutes'
 import type { CreateTripInput } from '@/features/trips/types'
@@ -37,6 +38,7 @@ export function TripsPage() {
   // ─── Data ────────────────────────────────────────────────
   const { data: tripsPage, isLoading, isError, error, refetch } = useOwnerTrips(page)
   const { data: routes = [] } = useOwnerRoutes()
+  const { data: drivers = [] } = useDrivers()
   const [buses, setBuses] = useState<Bus[]>([])
   const [busesLoaded, setBusesLoaded] = useState(false)
 
@@ -68,6 +70,12 @@ export function TripsPage() {
     for (const r of routes) map[r.routeId] = r.routeName
     return map
   }, [routes])
+
+  const driverLookup = useMemo(() => {
+    const map: Record<string, string> = {}
+    for (const d of drivers) map[d.driverId] = d.fullName
+    return map
+  }, [drivers])
 
   // ─── Handlers ────────────────────────────────────────────
   function handleCreate(data: CreateTripInput) {
@@ -178,6 +186,7 @@ export function TripsPage() {
         isLoading={createMutation.isPending}
         buses={buses}
         routes={routes}
+        drivers={drivers}
       />
     </div>
   )

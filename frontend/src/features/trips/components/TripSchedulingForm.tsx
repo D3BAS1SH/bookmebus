@@ -5,11 +5,11 @@ import { Bus, Route, User, Calendar, Clock } from 'lucide-react'
 import { Modal } from '@/components/ui/Modal'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
-import { createTripSchema, type CreateTripInput } from '@/features/trips/types'
+import { createTripSchema, type CreateTripInput, type Driver } from '@/features/trips/types'
 import type { Route as RouteType } from '@/features/routes/types'
 import { z } from 'zod/v4'
 
-interface Bus {
+interface BusItem {
   busId: string
   registrationNumber: string
   vehicleNumber: string
@@ -21,8 +21,9 @@ interface TripSchedulingFormProps {
   onClose: () => void
   onSubmit: (data: CreateTripInput) => void
   isLoading: boolean
-  buses: Bus[]
+  buses: BusItem[]
   routes: RouteType[]
+  drivers: Driver[]
 }
 
 interface FieldError {
@@ -40,6 +41,7 @@ export function TripSchedulingForm({
   isLoading,
   buses,
   routes,
+  drivers,
 }: TripSchedulingFormProps) {
   const [busId, setBusId] = useState('')
   const [routeId, setRouteId] = useState('')
@@ -64,7 +66,7 @@ export function TripSchedulingForm({
     const parsed = createTripSchema.safeParse({
       busId,
       routeId,
-      driverId: driverId.trim(),
+      driverId,
       departureTime: departureTime ? new Date(departureTime).toISOString() : '',
       expectedDurationMin: expectedDurationMin
         ? Number(expectedDurationMin)
@@ -157,18 +159,34 @@ export function TripSchedulingForm({
           )}
         </div>
 
-        {/* Driver ID */}
+        {/* Driver Selector */}
         <div className="space-y-1">
-          <Input
-            icon={<User className="h-5 w-5" />}
-            label="Driver ID (UUID)"
-            placeholder="e.g. f47ac10b-58cc-4372-a567-0e02b2c3d479"
-            value={driverId}
-            onChange={(e) => setDriverId(e.target.value)}
-            disabled={isLoading}
-          />
+          <label className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">
+            Driver
+          </label>
+          <div className="relative">
+            <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-on-surface-variant pointer-events-none" />
+            <select
+              value={driverId}
+              onChange={(e) => setDriverId(e.target.value)}
+              disabled={isLoading}
+              className="w-full rounded-xl bg-surface-container-lowest border border-outline-variant/20 pl-10 pr-4 py-3 text-sm text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors appearance-none cursor-pointer disabled:opacity-50"
+            >
+              <option value="">Select a driver…</option>
+              {drivers.map((d) => (
+                <option key={d.driverId} value={d.driverId}>
+                  {d.fullName} — {d.email}
+                </option>
+              ))}
+            </select>
+          </div>
+          {drivers.length === 0 && (
+            <p className="text-xs text-on-surface-variant/60 font-medium">
+              No drivers registered yet.
+            </p>
+          )}
           {errors.driverId && (
-            <p className="text-xs text-error pl-6 font-medium">{errors.driverId}</p>
+            <p className="text-xs text-error font-medium">{errors.driverId}</p>
           )}
         </div>
 

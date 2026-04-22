@@ -10,6 +10,7 @@ export { TripSchedulingForm } from './components/TripSchedulingForm'
 export type {
   Trip,
   TripStatus,
+  Driver,
   CreateTripInput,
   UpdateTripInput,
   PageResponse,
@@ -23,4 +24,5 @@ export {
   useUpdateTrip,
   useDeleteTrip,
   useTripStatusAction,
+  useDrivers,
 } from './hooks/useTrips'

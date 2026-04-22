@@ -51,6 +51,16 @@ export interface PageResponse<T> {
   empty: boolean
 }
 
+// ─── Driver ──────────────────────────────────────────────────────
+
+export interface Driver {
+  driverId: string
+  fullName: string
+  email: string
+  phone: string
+  role: string
+}
+
 // ─── Generic API wrapper ─────────────────────────────────────────
 
 export interface TripApiResponse<T> {

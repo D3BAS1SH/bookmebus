@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import type {
   Trip,
+  Driver,
   PageResponse,
   TripApiResponse,
   CreateTripInput,
@@ -14,6 +15,7 @@ export const tripKeys = {
   all: ['trips'] as const,
   list: (page: number, size: number) => ['trips', 'list', page, size] as const,
   detail: (id: string) => ['trips', id] as const,
+  drivers: ['drivers'] as const,
 }
 
 // ─── Fetchers ─────────────────────────────────────────────────────
@@ -103,7 +105,23 @@ async function changeTripStatus({
   return json.data
 }
 
+async function fetchDrivers(): Promise<Driver[]> {
+  const res = await fetch('/api/drivers', { credentials: 'include' })
+  const json: TripApiResponse<Driver[]> = await res.json()
+  if (!res.ok || !json.success) {
+    throw new Error(json.message || 'Failed to fetch drivers')
+  }
+  return json.data
+}
+
 // ─── Hooks ────────────────────────────────────────────────────────
+
+export function useDrivers() {
+  return useQuery({
+    queryKey: tripKeys.drivers,
+    queryFn: fetchDrivers,
+  })
+}
 
 export function useOwnerTrips(page = 0, size = 10) {
   return useQuery({
