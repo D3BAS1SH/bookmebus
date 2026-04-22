@@ -18,7 +18,7 @@ const ROLE_DASHBOARDS: Record<string, string> = {
 // Auth pages — redirect away if already logged in
 const AUTH_PAGES = ['/login', '/signup']
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Read the user cookie (contains role info)
