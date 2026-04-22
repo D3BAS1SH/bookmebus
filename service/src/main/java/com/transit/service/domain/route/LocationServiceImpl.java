@@ -41,6 +41,15 @@ public class LocationServiceImpl implements LocationService{
 
     @Override
     @Transactional(readOnly = true)
+    public List<LocationResponse> getAllLocation() {
+
+        List<Location> allLocations = this.locationRepository.findAll();
+
+        return allLocations.stream().map(this::toResponse).toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public LocationResponse getLocation(UUID locationId){
         Location specificLocation = this.locationRepository.findById(locationId).orElseThrow(()-> new ResourceNotFoundException("location","id",locationId));
         return this.toResponse(specificLocation);

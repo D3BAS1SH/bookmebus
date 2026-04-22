@@ -9,6 +9,7 @@ import java.util.UUID;
 
 public interface LocationService {
     List<LocationResponse> getAllLocationOfRoute(UUID routeId);
+    List<LocationResponse> getAllLocation();
     LocationResponse getLocation(UUID locationId);
     LocationResponse addLocation(LocationRequest locationRequest);
     LocationResponse updateLocation(UUID locationId, LocationUpdateRequest locationRequest);
