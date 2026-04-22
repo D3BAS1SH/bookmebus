@@ -124,9 +124,12 @@ public class TripController {
 
     @GetMapping("/{tripId}/seats")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ApiResponse<List<TripSeatResponse>>> getAvailableSeats(
-            @PathVariable UUID tripId
+    public ResponseEntity<ApiResponse<List<TripSeatResponse>>> getSeats(
+            @PathVariable UUID tripId,
+            @RequestParam(required = false) UUID boardingStopId,
+            @RequestParam(required = false) UUID dropoffStopId
     ) {
-        return ResponseEntity.ok(ApiResponse.ok(tripService.getAvailableSeats(tripId)));
+        return ResponseEntity.ok(ApiResponse.ok(
+                tripService.getAvailableSeats(tripId, boardingStopId, dropoffStopId)));
     }
 }
