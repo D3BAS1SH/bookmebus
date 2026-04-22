@@ -1,4 +1,4 @@
-package com.transit.service.domain.trip;
+package com.transit.service.domain.trip.dto;
 
 /**
  * Availability status of a TripSeat for a given boarding→dropoff segment.
