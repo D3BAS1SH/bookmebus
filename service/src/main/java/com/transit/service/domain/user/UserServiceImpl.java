@@ -2,9 +2,11 @@ package com.transit.service.domain.user;
 
 import com.transit.service.domain.user.dto.LoginRequest;
 import com.transit.service.domain.user.dto.RegisterRequest;
+import com.transit.service.domain.user.dto.UserInfo;
 import com.transit.service.domain.user.dto.UserResponse;
 import com.transit.service.shared.exception.BookingConflictException;
 import com.transit.service.shared.security.JwtService;
+import jakarta.validation.constraints.NotNull;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +15,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @Slf4j
@@ -66,6 +70,15 @@ public class UserServiceImpl implements UserService {
         return this.toResponseBuilder(user, token);
     }
 
+    // Get all drivers
+    @Override
+    @Transactional(readOnly = true)
+    public List<UserInfo> getAllDrivers() {
+        List<User> allDrivers = this.userRepository.findAllByRole(UserRole.DRIVER);
+
+        return allDrivers.stream().map(this::toUserInfo).toList();
+    }
+
     // Mapper Helper
     private UserResponse toResponseBuilder(@NonNull User user, String token){
         return new UserResponse(
@@ -77,6 +90,16 @@ public class UserServiceImpl implements UserService {
                 user.isActive(),
                 user.getCreatedAt(),
                 token
+        );
+    }
+
+    private UserInfo toUserInfo(@NotNull User user){
+        return new UserInfo(
+                user.getId(),
+                user.getFullName(),
+                user.getEmail(),
+                user.getPhone(),
+                user.getRole()
         );
     }
 

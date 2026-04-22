@@ -2,7 +2,10 @@ package com.transit.service.domain.user;
 
 import com.transit.service.domain.user.dto.LoginRequest;
 import com.transit.service.domain.user.dto.RegisterRequest;
+import com.transit.service.domain.user.dto.UserInfo;
 import com.transit.service.domain.user.dto.UserResponse;
+
+import java.util.List;
 
 public interface UserService {
     /**
@@ -21,4 +24,6 @@ public interface UserService {
      *         if the email is already taken
      */
     UserResponse register(RegisterRequest registerRequest);
+
+    List<UserInfo> getAllDrivers();
 }
