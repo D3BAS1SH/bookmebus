@@ -5,6 +5,7 @@ import com.transit.service.domain.booking.dto.BookingResponse;
 import com.transit.service.domain.route.RouteStop;
 import com.transit.service.domain.route.RouteStopRepository;
 import com.transit.service.domain.trip.*;
+import com.transit.service.domain.trip.TripSeat;
 import com.transit.service.domain.user.User;
 import com.transit.service.domain.user.UserRepository;
 import com.transit.service.shared.exception.BusinessException;
