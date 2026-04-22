@@ -28,6 +28,11 @@ public class LocationController {
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok(locationService.addLocation(request)));
     }
 
+    @GetMapping("/all-location")
+    public ResponseEntity<ApiResponse<List<LocationResponse>>> getAllLocation() {
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.ok(locationService.getAllLocation()));
+    }
+
     @GetMapping("/{locationId}")
     public ResponseEntity<ApiResponse<LocationResponse>> getLocation(@PathVariable UUID locationId) {
         LocationResponse locationResponse = locationService.getLocation(locationId);
