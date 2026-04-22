@@ -29,5 +29,26 @@ public interface TripService {
     TripResponse completeTrip(UUID tripId, UUID driverUserId);
 
     // Seat queries — used by booking in Phase 3 Part 2
-    List<TripSeatResponse> getAvailableSeats(UUID tripId);
+//    List<TripSeatResponse> getAvailableSeats(UUID tripId);
+
+    /**
+     * Returns all seats for a trip with live availability status.
+     *
+     * Two modes depending on whether segment params are provided:
+     *
+     * Segment mode — boardingStopId + dropoffStopId both present:
+     *   Each seat is marked AVAILABLE or BOOKED for that specific segment.
+     *   Intended for travelers searching seats before booking.
+     *
+     * General mode — either param is null:
+     *   Each seat is marked AVAILABLE or PARTIALLY_BOOKED based on whether
+     *   any confirmed booking exists anywhere on the route for that seat.
+     *   bookedSegments list is populated with stop names.
+     *   Intended for owner/driver occupancy dashboards.
+     *
+     * @param tripId         the trip to query seats for
+     * @param boardingStopId optional — location UUID of the boarding stop
+     * @param dropoffStopId  optional — location UUID of the dropoff stop
+     */
+    List<TripSeatResponse> getAvailableSeats(UUID tripId, UUID boardingStopId, UUID dropoffStopId);
 }

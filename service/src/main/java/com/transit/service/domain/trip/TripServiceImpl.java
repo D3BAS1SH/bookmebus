@@ -1,10 +1,14 @@
 package com.transit.service.domain.trip;
 
+import com.transit.service.domain.booking.Booking;
 import com.transit.service.domain.bus.Bus;
 import com.transit.service.domain.bus.BusRepository;
 import com.transit.service.domain.bus.SeatLayoutGenerator;
 import com.transit.service.domain.route.Route;
 import com.transit.service.domain.route.RouteRepository;
+import com.transit.service.domain.route.RouteStop;
+import com.transit.service.domain.route.RouteStopRepository;
+import com.transit.service.domain.trip.dto.SeatStatus;
 import com.transit.service.domain.trip.dto.TripRequest;
 import com.transit.service.domain.trip.dto.TripResponse;
 import com.transit.service.domain.trip.dto.TripSeatResponse;
@@ -34,6 +38,7 @@ public class TripServiceImpl implements TripService {
     private final BusRepository busRepository;
     private final RouteRepository routeRepository;
     private final UserRepository userRepository;
+    private final RouteStopRepository routeStopRepository;
 
     @Override
     @Transactional
@@ -230,20 +235,106 @@ public class TripServiceImpl implements TripService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<TripSeatResponse> getAvailableSeats(UUID tripId) {
+    public List<TripSeatResponse> getAvailableSeats(
+            UUID tripId,
+            UUID boardingStopId,
+            UUID dropoffStopId) {
+
         Trip trip = findTripOrThrow(tripId);
-        return tripSeatRepository.findByTrip(trip).stream()
-                .map(seat -> TripSeatResponse.builder()
-                        .tripId(tripId)
-                        .tripSeatId(seat.getTripSeatId())
-                        .seatNumber(seat.getSeatNumber())
-                        .build())
-                .toList();
+        List<TripSeat> seats = tripSeatRepository.findByTrip(trip);
+
+        boolean segmentMode = boardingStopId != null && dropoffStopId != null;
+
+        if (segmentMode) {
+            return getSeatsForSegment(trip, seats, boardingStopId, dropoffStopId);
+        } else {
+            return getSeatsGeneral(seats);
+        }
     }
 
     // -------------------------------------------------------------------------
     // Internal helpers
     // -------------------------------------------------------------------------
+
+    /**
+     * For each seat, runs the overlap check against the requested segment.
+     * Marks AVAILABLE or BOOKED. No bookedSegments list populated — unnecessary
+     * when the traveler already knows their own journey.
+     */
+    private List<TripSeatResponse> getSeatsForSegment(
+            Trip trip,
+            List<TripSeat> seats,
+            UUID boardingStopId,
+            UUID dropoffStopId) {
+
+        // Resolve sequence numbers for the requested stops
+        RouteStop boardingStop = routeStopRepository
+                .findByRoute_RouteIdAndLocation_LocationId(trip.getRoute().getRouteId(), boardingStopId)
+                .orElseThrow(() -> new BusinessException("Boarding stop is not on this route"));
+
+        RouteStop dropoffStop = routeStopRepository
+                .findByRoute_RouteIdAndLocation_LocationId(trip.getRoute().getRouteId(), dropoffStopId)
+                .orElseThrow(() -> new BusinessException("Dropoff stop is not on this route"));
+
+        if (dropoffStop.getSequenceOrder() <= boardingStop.getSequenceOrder())
+            throw new BusinessException("Dropoff stop must be after boarding stop");
+
+        int boardingSeq = boardingStop.getSequenceOrder();
+        int dropoffSeq = dropoffStop.getSequenceOrder();
+
+        return seats.stream()
+                .map(seat -> {
+                    boolean isBooked = tripSeatRepository.existsOverlappingBookingForSeat(
+                            seat.getTripSeatId(), boardingSeq, dropoffSeq);
+
+                    return TripSeatResponse.builder()
+                            .tripId(trip.getTripId())
+                            .tripSeatId(seat.getTripSeatId())
+                            .seatNumber(seat.getSeatNumber())
+                            .seatStatus(isBooked ? SeatStatus.BOOKED : SeatStatus.AVAILABLE)
+                            .bookedSegments(List.of()) // empty in segment mode
+                            .build();
+                })
+                .toList();
+    }
+
+    /**
+     * For each seat, fetches all confirmed bookings and builds a BookedSegmentInfo
+     * list with human-readable stop names. Marks AVAILABLE or PARTIALLY_BOOKED.
+     *
+     * No sequence-based math here — just "does any booking exist on this seat?"
+     */
+    private List<TripSeatResponse> getSeatsGeneral(List<TripSeat> seats) {
+        return seats.stream()
+                .map(seat -> {
+                    List<Booking> bookings = tripSeatRepository
+                            .findConfirmedBookingsForSeat(seat.getTripSeatId());
+
+                    List<TripSeatResponse.BookedSegmentInfo> segmentInfos = bookings.stream()
+                            .map(b -> TripSeatResponse.BookedSegmentInfo.builder()
+                                    .boardingSeq(b.getBoardingSequence())
+                                    .dropoffSeq(b.getDropoffSequence())
+                                    // Location names come from the Booking associations
+                                    // boardingPoint and dropoffPoint are Location entities
+                                    .boardingStopName(b.getBoardingPoint().getLocationName())
+                                    .dropoffStopName(b.getDropoffPoint().getLocationName())
+                                    .build())
+                            .toList();
+
+                    SeatStatus status = bookings.isEmpty()
+                            ? SeatStatus.AVAILABLE
+                            : SeatStatus.PARTIALLY_BOOKED;
+
+                    return TripSeatResponse.builder()
+                            .tripId(seat.getTrip().getTripId())
+                            .tripSeatId(seat.getTripSeatId())
+                            .seatNumber(seat.getSeatNumber())
+                            .seatStatus(status)
+                            .bookedSegments(segmentInfos)
+                            .build();
+                })
+                .toList();
+    }
 
     private Trip findTripOrThrow(UUID tripId) {
         return tripRepository.findById(tripId)
