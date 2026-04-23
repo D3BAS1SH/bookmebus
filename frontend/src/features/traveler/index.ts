@@ -1,3 +1,7 @@
 export * from './components/TravelerLayout'
 export * from './components/TravelerHome'
 export * from './components/SearchTrip'
+export * from './components/TripResults'
+export * from './components/SeatSelection'
+export * from './components/MyBookings'
+export * from './components/BookingDetail'

@@ -11,16 +11,15 @@ export function Hero() {
   return (
     <header className="relative min-h-[921px] flex items-center overflow-hidden">
       {/* Background Image with Hero Mask */}
-      <div className="absolute inset-0 z-0">
+      <div className="absolute inset-0 z-0 bg-slate-900">
         <Image
-          src="https://lh3.googleusercontent.com/aida-public/AB6AXuDtNmv157iZOu-dHQU71TwGA250eOH5_1xxtYSb83e45C9ArriuybVq_VzXxVpJmfh3GuS5-S6O7_aFz7SbZei1gRxVchEcB0yzVfgoclFyx572oAaohRoUvDXZXT-ZI6ygTG60FE8s5XHFwTDkqKAnmt1_AoK2Qk3VUzjOETv-d2p2ryrAvCgQLxOp-bf7_6ALPCsxsdAxH-lOibG9RGFfP8qZY6CmrMZWervq0evasmQUmdWP4eipF8LT6evzat_aygmwsFX7qjSa"
+          src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=3540&auto=format&fit=crop"
           alt="Ethereal Mountain Range"
-          sizes='fit'
-          className="object-cover hero-mask"
+          className="object-cover hero-mask opacity-80"
           priority
-          height={1080}
-          width={1920}
+          fill
         />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-transparent z-10" />
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-8 w-full pt-20">
@@ -39,7 +38,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="font-display text-6xl md:text-7xl font-extrabold text-on-surface tracking-tighter leading-[1.1] mb-6"
+            className="font-display text-6xl md:text-7xl font-extrabold text-white tracking-tighter leading-[1.1] mb-6"
           >
             Plan Your Journey with Confidence
           </motion.h1>
@@ -48,7 +47,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="text-lg text-on-surface-variant font-medium leading-relaxed mb-10 max-w-lg"
+            className="text-lg text-white/90 font-medium leading-relaxed mb-10 max-w-lg"
           >
             Real-time booking, tracking, and support for a seamless travel experience designed for the modern explorer.
           </motion.p>

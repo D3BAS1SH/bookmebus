@@ -20,10 +20,10 @@ export function Navbar() {
   }, [])
 
   const navLinks = [
-    { name: 'Destinations', href: '#' },
-    { name: 'Experiences', href: '#' },
-    { name: 'Sustainability', href: '#' },
-    { name: 'Concierge', href: '#' },
+    { name: 'Destinations', href: '/destinations' },
+    { name: 'Experiences', href: '/experiences' },
+    { name: 'Sustainability', href: '/sustainability' },
+    { name: 'Concierge', href: '/concierge' },
   ]
 
   return (
@@ -34,7 +34,10 @@ export function Navbar() {
       )}
     >
       <div className="max-w-screen-2xl mx-auto h-full px-8 flex justify-between items-center">
-        <Link href="/" className="text-xl font-bold tracking-tighter text-on-surface font-display">
+        <Link href="/" className={cn(
+          "text-xl font-bold tracking-tighter font-display",
+          isScrolled ? "text-slate-900 dark:text-white" : "text-white"
+        )}>
           Ethereal Voyager
         </Link>
 
@@ -44,7 +47,10 @@ export function Navbar() {
             <Link
               key={link.name}
               href={link.href}
-              className="text-on-surface-variant hover:text-primary transition-colors font-medium"
+              className={cn(
+                "transition-colors font-medium",
+                isScrolled ? "text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white" : "text-white hover:text-white/80"
+              )}
             >
               {link.name}
             </Link>
@@ -52,10 +58,16 @@ export function Navbar() {
         </div>
 
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="sm" className="hidden sm:inline-flex" asChild>
+          <Button variant="ghost" size="sm" className={cn(
+            "hidden sm:inline-flex",
+            isScrolled ? "text-slate-600 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-300 dark:hover:text-white dark:hover:bg-slate-800" : "text-white hover:bg-white/10 hover:text-white"
+          )} asChild>
             <Link href="/login">Sign in</Link>
           </Button>
-          <Button size="sm" className="ambient-shadow hover:scale-95 transition-transform">
+          <Button size="sm" className={cn(
+            "ambient-shadow hover:scale-95 transition-transform",
+            isScrolled ? "" : "bg-white text-slate-900 hover:bg-white/90"
+          )}>
             Book Now
           </Button>
           
