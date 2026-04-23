@@ -154,7 +154,22 @@ async function generateTicket(bookingId: string): Promise<Booking> {
   return json.data
 }
 
+async function resolveBooking(code: string): Promise<Booking> {
+  const res = await fetch(`/api/tickets/resolve?code=${code}`, { credentials: 'include' })
+  const json: ApiResponse<Booking> = await res.json()
+  if (!res.ok || !json.success) throw new Error(json.message || 'Failed to resolve booking')
+  return json.data
+}
+
 // ─── Hooks ────────────────────────────────────────────────────────
+
+export function useResolveBooking(code: string, enabled = true) {
+  return useQuery({
+    queryKey: ['traveler', 'bookings', 'resolve', code],
+    queryFn: () => resolveBooking(code),
+    enabled: enabled && !!code,
+  })
+}
 
 export function useAllLocations() {
   return useQuery({

@@ -329,11 +329,11 @@ export function SeatSelection({ tripId }: SeatSelectionProps) {
       const booking = await createBookingMutation.mutateAsync({
         tripId,
         tripSeatId: selectedSeat.tripSeatId,
-        boardingStopId: boardingStop.routeStopId,
-        dropoffStopId: dropoffStop.routeStopId,
+        boardingStopId: boardingStop.locationId,
+        dropoffStopId: dropoffStop.locationId,
       })
       setShowConfirm(false)
-      router.push(`/traveler/bookings/${booking.bookingId}`)
+      router.push(`/traveler/bookings/${booking.bookingId}/success`)
     } catch {
       // Error handled by mutation onError
     }
