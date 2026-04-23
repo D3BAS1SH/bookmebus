@@ -120,7 +120,7 @@ async function createBooking(input: BookingRequest): Promise<Booking> {
 }
 
 async function fetchMyBookings(page = 0, size = 10): Promise<PageResponse<Booking>> {
-  const res = await fetch(`/api/bookings?page=${page}&size=${size}&sort=bookedAt,desc`, {
+  const res = await fetch(`/api/v1/bookings/my`, {
     credentials: 'include',
   })
   const json: ApiResponse<PageResponse<Booking>> = await res.json()
