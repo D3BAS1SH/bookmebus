@@ -2,6 +2,7 @@ package com.transit.service.domain.booking;
 
 import com.transit.service.domain.booking.dto.BookingRequest;
 import com.transit.service.domain.booking.dto.BookingResponse;
+import com.transit.service.domain.booking.dto.DriverPassengerView;
 import com.transit.service.domain.route.RouteStop;
 import com.transit.service.domain.route.RouteStopRepository;
 import com.transit.service.domain.trip.*;
@@ -87,7 +88,7 @@ public class BookingServiceImpl implements BookingService {
         }
 
         try {
-            boolean overlaps = bookingRepository.existsOverlappingBooking(tripSeat.getTripSeatId(), dropoffSeq, boardingSeq);
+            boolean overlaps = bookingRepository.existsOverlappingBooking(tripSeat.getTripSeatId(), dropoffSeq, boardingSeq, BookingStatus.CONFIRMED);
             if (overlaps) {
                 throw new BusinessException("Booking is already overlapping");
             }
@@ -170,7 +171,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<BookingResponse> getBookingsByTrip(UUID tripId, UUID callerUserId) {
+    public List<DriverPassengerView> getBookingsByTrip(UUID tripId, UUID callerUserId) {
         Trip trip = tripRepository.findById(tripId)
                 .orElseThrow(() -> new ResourceNotFoundException("Trip", "Id", tripId));
 
@@ -183,7 +184,7 @@ public class BookingServiceImpl implements BookingService {
 
         return bookingRepository.findConfirmedByTripId(tripId)
                 .stream()
-                .map(this::toResponse)
+                .map(this::toResponseDriverPassengerView)
                 .toList();
     }
 
@@ -257,6 +258,17 @@ public class BookingServiceImpl implements BookingService {
                 .didBoard(booking.isDidBoard())
                 .status(booking.getBookingStatus())
                 .bookedAt(booking.getBookingAt())
+                .build();
+    }
+
+    private DriverPassengerView toResponseDriverPassengerView(Booking booking) {
+        return DriverPassengerView.builder()
+                .travelerName(booking.getTraveler().getFullName())
+                .seatNumber(booking.getTripSeat().getSeatNumber())
+                .boardingStop(booking.getBoardingPoint().getLocationName())
+                .dropoffStop(booking.getDropoffPoint().getLocationName())
+                .didBoard(booking.isDidBoard())
+                .bookingStatus(booking.getBookingStatus())
                 .build();
     }
 }

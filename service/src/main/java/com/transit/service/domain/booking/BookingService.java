@@ -2,6 +2,7 @@ package com.transit.service.domain.booking;
 
 import com.transit.service.domain.booking.dto.BookingRequest;
 import com.transit.service.domain.booking.dto.BookingResponse;
+import com.transit.service.domain.booking.dto.DriverPassengerView;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -17,7 +18,7 @@ public interface BookingService {
 
     // Owner operations
     Page<BookingResponse> getBookingsByOwner(UUID ownerId, Pageable pageable);
-    List<BookingResponse> getBookingsByTrip(UUID tripId, UUID callerUserId);
+    List<DriverPassengerView> getBookingsByTrip(UUID tripId, UUID callerUserId);
 
     // Driver operations — Phase 4
     BookingResponse verifyBoarding(UUID bookingId, UUID driverUserId);
