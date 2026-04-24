@@ -1,6 +1,7 @@
 package com.transit.service.domain.trip;
 
 import com.transit.service.domain.booking.Booking;
+import com.transit.service.domain.booking.BookingStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -24,17 +25,18 @@ public interface TripSeatRepository extends JpaRepository<TripSeat, UUID> {
      * AVAILABLE or BOOKED for the traveler's specific journey.
      */
     @Query("""
-        SELECT COUNT(b) > 0
-        FROM Booking b
-        WHERE b.tripSeat.tripSeatId = :tripSeatId
-          AND b.bookingStatus = com.transit.service.domain.booking.BookingStatus.CONFIRMED
-          AND b.boardingSequence < :dropoffSeq
-          AND b.dropoffSequence  > :boardingSeq
-        """)
+    SELECT COUNT(b) > 0
+    FROM Booking b
+    WHERE b.tripSeat.tripSeatId = :tripSeatId
+      AND b.bookingStatus = :status
+      AND b.boardingSequence < :dropoffSeq
+      AND b.dropoffSequence  > :boardingSeq
+    """)
     boolean existsOverlappingBookingForSeat(
             @Param("tripSeatId") UUID tripSeatId,
             @Param("boardingSeq") int boardingSeq,
-            @Param("dropoffSeq") int dropoffSeq
+            @Param("dropoffSeq") int dropoffSeq,
+            @Param("status") BookingStatus status
     );
 
     /**
@@ -49,8 +51,27 @@ public interface TripSeatRepository extends JpaRepository<TripSeat, UUID> {
         SELECT b
         FROM Booking b
         WHERE b.tripSeat.tripSeatId = :tripSeatId
-          AND b.bookingStatus = com.transit.service.domain.booking.BookingStatus.CONFIRMED
+          AND b.bookingStatus = :status
         ORDER BY b.boardingSequence ASC
-        """)
-    List<Booking> findConfirmedBookingsForSeat(@Param("tripSeatId") UUID tripSeatId);
+    """)
+    List<Booking> findConfirmedBookingsForSeat(
+            @Param("tripSeatId") UUID tripSeatId,
+            @Param("status") BookingStatus status
+    );
+
+    @Query("""
+        SELECT COUNT(ts) FROM TripSeat ts
+        WHERE ts.trip.tripId = :tripId
+        AND ts.tripSeatId NOT IN (
+            SELECT b.tripSeat.tripSeatId FROM Booking b
+            WHERE b.bookingStatus = 'CONFIRMED'
+            AND b.boardingSequence < :dropoffSeq
+            AND b.dropoffSequence > :boardingSeq
+        )
+    """)
+    int countAvailableSeats(
+            @Param("tripId") UUID tripId,
+            @Param("boardingSeq") int boardingSeq,
+            @Param("dropoffSeq") int dropoffSeq
+    );
 }
