@@ -2,6 +2,7 @@ package com.transit.service.domain.booking;
 
 import com.transit.service.domain.booking.dto.BookingRequest;
 import com.transit.service.domain.booking.dto.BookingResponse;
+import com.transit.service.domain.booking.dto.DriverPassengerView;
 import com.transit.service.domain.user.User;
 import com.transit.service.shared.response.ApiResponse;
 import jakarta.validation.Valid;
@@ -77,7 +78,7 @@ public class BookingController {
 
     @GetMapping("/trip/{tripId}")
     @PreAuthorize("hasRole('OWNER') or hasRole('DRIVER')")
-    public ResponseEntity<ApiResponse<List<BookingResponse>>> getBookingsByTrip(
+    public ResponseEntity<ApiResponse<List<DriverPassengerView>>> getBookingsByTrip(
             @PathVariable UUID tripId,
             @AuthenticationPrincipal User caller
     ) {
