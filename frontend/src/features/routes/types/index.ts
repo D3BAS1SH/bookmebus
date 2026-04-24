@@ -72,15 +72,8 @@ export const createRouteSchema = z.object({
 
 export type CreateRouteInput = z.infer<typeof createRouteSchema>
 
-// ─── Add Stops (to existing route) ───────────────────────────────
-
-export const addStopsSchema = z.object({
-  stops: z
-    .array(routeStopRequestSchema)
-    .min(1, 'At least one stop is required'),
-})
-
-export type AddStopsInput = z.infer<typeof addStopsSchema>
+// ─── Add Stop (to existing route) ───────────────────────────────
+export type AddStopInput = RouteStopRequest & { routeId: string }
 
 // ─── API Response wrapper ────────────────────────────────────────
 

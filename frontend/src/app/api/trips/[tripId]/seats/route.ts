@@ -27,12 +27,12 @@ export async function GET(
     const { searchParams } = new URL(request.url)
 
     const boardingLocationId = searchParams.get('boardingLocationId') || ''
-    const dropoffLocationpId = searchParams.get('dropoffLocationpId') || ''
+    const dropoffLocationId = searchParams.get('dropoffLocationId') || ''
 
     let url = `${BACKEND_URL}/api/v1/trips/${tripId}/seats`
     const qp = new URLSearchParams()
     if (boardingLocationId) qp.set('boardingLocationId', boardingLocationId)
-    if (dropoffLocationpId) qp.set('dropoffLocationpId', dropoffLocationpId)
+    if (dropoffLocationId) qp.set('dropoffLocationId', dropoffLocationId)
     const qs = qp.toString()
     if (qs) url += `?${qs}`
 

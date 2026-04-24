@@ -81,17 +81,17 @@ async function createRoute(input: CreateRouteInput): Promise<Route> {
 
 async function addStopsToRoute({
   routeId,
-  ...input
-}: { routeId: string } & { stops: RouteStopRequest[] }): Promise<Route> {
+  ...stop
+}: { routeId: string } & RouteStopRequest): Promise<Route> {
   const res = await fetch(`/api/routes/${routeId}/stops`, {
     method: 'POST',
     credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(input),
+    body: JSON.stringify(stop),
   })
   const json: RouteApiResponse<Route> = await res.json()
   if (!res.ok || !json.success) {
-    throw new Error(json.message || 'Failed to add stops')
+    throw new Error(json.message || 'Failed to add stop')
   }
   return json.data
 }

@@ -62,9 +62,9 @@ export function RoutesPage() {
     setIsStopsModalOpen(true)
   }
 
-  function handleAddStops(routeId: string, stops: RouteStopRequest[]) {
+  function handleAddStop(routeId: string, stop: RouteStopRequest) {
     addStopsMutation.mutate(
-      { routeId, stops },
+      { routeId, ...stop },
       {
         onSuccess: () => {
           setIsStopsModalOpen(false)
@@ -182,7 +182,7 @@ export function RoutesPage() {
           setStopsRoute(null)
         }}
         route={stopsRoute}
-        onAddStops={handleAddStops}
+        onAddStop={handleAddStop}
         isLoading={addStopsMutation.isPending}
         locations={locations}
       />

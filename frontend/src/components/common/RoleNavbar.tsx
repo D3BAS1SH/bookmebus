@@ -51,9 +51,10 @@ export function RoleNavbar({ role, navItems }: RoleNavbarProps) {
         <div className="flex h-16 items-center justify-between">
           {/* Desktop Branding */}
           <div className="flex items-center gap-8">
-            <Link href={`/${role.toLowerCase()}/dashboard`} className="transition-opacity hover:opacity-80">
-              <Branding />
-            </Link>
+            <Branding 
+              href={`/${role.toLowerCase()}/dashboard`}
+              className="transition-opacity hover:opacity-80"
+            />
 
             {/* Desktop Nav Links */}
             <div className="hidden md:flex md:items-center md:gap-1">
@@ -141,7 +142,7 @@ export function RoleNavbar({ role, navItems }: RoleNavbarProps) {
             >
               <div className="flex flex-col h-full">
                 <div className="flex items-center justify-between mb-8">
-                  <Branding />
+                  <Branding href={`/${role.toLowerCase()}/dashboard`} />
                   <button onClick={toggleMenu} className="text-on-surface-variant hover:text-on-surface">
                     <X className="h-6 w-6" />
                   </button>

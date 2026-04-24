@@ -68,3 +68,14 @@ export interface TripApiResponse<T> {
   message?: string
   data: T
 }
+
+// ─── Trip Passenger ──────────────────────────────────────────────
+
+export interface TripPassenger {
+  travelerName: string
+  seatNumber: string
+  boardingStopName: string
+  dropoffStopName: string
+  didBoard: boolean
+  bookingStatus: string
+}

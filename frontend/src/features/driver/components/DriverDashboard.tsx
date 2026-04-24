@@ -1,70 +1,103 @@
 'use client'
 
-import React from 'react'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card'
-import { Bus, Users, MapPin, TrendingUp } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import React, { useEffect, useState } from 'react'
+import { WelcomeHeader } from './WelcomeHeader'
+import { ActiveTripCard } from './ActiveTripCard'
+import { BoardingSummary } from './BoardingSummary'
+import { NextTripCountdown } from './NextTripCountdown'
+import { QuickStats } from './QuickStats'
+import { TodaySchedule } from './TodaySchedule'
+import { useDriverDashboard } from '../hooks/useDriverDashboard'
+import { useBoardingStatus } from '../hooks/useBoardingStatus'
+import { Skeleton } from '@/components/ui/Skeleton'
 
 export function DriverDashboard() {
+  const { 
+    activeTrip, 
+    nextTrip, 
+    todayTrips, 
+    stats, 
+    isLoading: isTripsLoading 
+  } = useDriverDashboard()
+
+  // Only fetch boarding for the active trip or the next trip if it's almost time
+  const boardingTripId = activeTrip?.tripId || nextTrip?.tripId
+  const { boardingStatus, isLoading: isBoardingLoading } = useBoardingStatus(boardingTripId)
+
+  // Merge boarding stats into overall stats
+  const enhancedStats = {
+    ...stats,
+    boardedToday: boardingStatus?.boardedCount || 0
+  }
+
+  if (isTripsLoading) {
+    return <DashboardSkeleton />
+  }
+
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div>
-        <h1 className="text-3xl font-display font-bold text-on-surface">Driver Dashboard</h1>
-        <p className="text-on-surface-variant font-medium">Welcome back! Here's your trip overview for today.</p>
-      </div>
+    <div className="max-w-5xl mx-auto space-y-8 pb-12 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+      {/* Component 1: Welcome Header */}
+      <WelcomeHeader />
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {[
-          { label: 'Today\'s Trips', value: '3', icon: Bus, color: 'text-blue-500' },
-          { label: 'Total Passengers', value: '142', icon: Users, color: 'text-green-500' },
-          { label: 'Next Stop', value: 'City Center', icon: MapPin, color: 'text-orange-500' },
-          { label: 'Rating', value: '4.9', icon: TrendingUp, color: 'text-yellow-500' },
-        ].map((stat, i) => (
-          <Card key={i} className="bg-surface-container-lowest border-none shadow-ambient hover:shadow-lg transition-all">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-on-surface-variant uppercase tracking-widest text-[10px]">
-                {stat.label}
-              </CardTitle>
-              <stat.icon className={cn("h-4 w-4", stat.color)} />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-on-surface">{stat.value}</div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {/* Left Column (8 units) */}
+        <div className="lg:col-span-8 space-y-8">
+          {/* Component 2: Active Trip Card */}
+          <ActiveTripCard trip={activeTrip} nextTrip={nextTrip} />
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="col-span-4 bg-surface-container-lowest border-none shadow-ambient">
-          <CardHeader>
-            <CardTitle className="text-on-surface">Active Trip Status</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[200px] flex items-center justify-center border border-dashed border-outline-variant/30 rounded-lg text-on-surface-variant bg-surface-container-low/30 font-medium">
-              [Map View / Tracking Visualization Placeholder]
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="col-span-3 bg-surface-container-lowest border-none shadow-ambient">
-          <CardHeader>
-            <CardTitle className="text-on-surface">Upcoming Schedule</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {[1, 2, 3].map((_, i) => (
-                <div key={i} className="flex items-center gap-4 p-3 rounded-lg border border-outline-variant/10 bg-surface-container-low transition-colors hover:bg-surface-container">
-                  <div className="h-2 w-2 rounded-full bg-primary shadow-sm shadow-primary/30" />
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-on-surface">Route 40{i} - Downtown</p>
-                    <p className="text-xs text-on-surface-variant">Scheduled: 1{i}:30 PM</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+          {/* Component 5: Quick Stats Row */}
+          <QuickStats stats={enhancedStats} isLoading={isBoardingLoading} />
+
+          {/* Component 3: Today's Schedule */}
+          <TodaySchedule trips={todayTrips} />
+        </div>
+
+        {/* Right Column (4 units) */}
+        <div className="lg:col-span-4 space-y-8">
+          {/* Component 4: Boarding Summary */}
+          <BoardingSummary tripId={boardingTripId} />
+
+          {/* Component 6: Next Trip Countdown */}
+          {!activeTrip && <NextTripCountdown trip={nextTrip} />}
+          
+          {/* Additional Info / Help Card */}
+          <div className="p-6 rounded-3xl bg-surface-container-low border border-outline-variant/10 space-y-4">
+            <h4 className="font-bold text-on-surface">Need Help?</h4>
+            <p className="text-xs text-on-surface-variant leading-relaxed">
+              If you encounter any issues with your route or passengers, contact dispatch immediately via the emergency button in the active trip view.
+            </p>
+            <button className="w-full py-3 rounded-xl border border-outline-variant text-xs font-bold hover:bg-surface-container transition-colors">
+              Contact Dispatch
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   )
 }
 
+function DashboardSkeleton() {
+  return (
+    <div className="max-w-5xl mx-auto space-y-8">
+      <div className="space-y-2">
+        <Skeleton className="h-10 w-64" />
+        <Skeleton className="h-4 w-48" />
+      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div className="lg:col-span-8 space-y-8">
+          <Skeleton className="h-64 w-full rounded-3xl" />
+          <div className="grid grid-cols-3 gap-4">
+            <Skeleton className="h-32 w-full rounded-3xl" />
+            <Skeleton className="h-32 w-full rounded-3xl" />
+            <Skeleton className="h-32 w-full rounded-3xl" />
+          </div>
+          <Skeleton className="h-96 w-full rounded-3xl" />
+        </div>
+        <div className="lg:col-span-4 space-y-8">
+          <Skeleton className="h-80 w-full rounded-3xl" />
+          <Skeleton className="h-64 w-full rounded-3xl" />
+        </div>
+      </div>
+    </div>
+  )
+}

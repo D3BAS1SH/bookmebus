@@ -16,7 +16,7 @@ export type {
   RouteStopRequest,
   CreateRouteInput,
   CreateLocationInput,
-  AddStopsInput,
+  AddStopInput,
 } from './types'
 
 // Re-export hooks

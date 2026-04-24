@@ -8,7 +8,6 @@ import { NavItem } from '@/components/common/RoleNavbar'
 const DRIVER_NAV_ITEMS: NavItem[] = [
   { label: 'Dashboard', href: '/driver/dashboard', icon: LayoutDashboard },
   { label: 'Active Trip', href: '/driver/trips/active', icon: Map },
-  { label: 'Schedule', href: '/driver/schedule', icon: Calendar },
   { label: 'Earnings', href: '/driver/earnings', icon: Wallet },
 ]
 

@@ -1,7 +1,10 @@
 import type { Metadata } from 'next'
-import { Plus_Jakarta_Sans, Manrope } from 'next/font/google'
+import { Plus_Jakarta_Sans, Manrope, JetBrains_Mono } from 'next/font/google'
 import { Providers } from '@/lib/providers'
 import './globals.css'
+import { cn } from "@/lib/utils";
+
+const jetbrainsMono = JetBrains_Mono({subsets:['latin'],variable:'--font-mono'});
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   variable: '--font-display',
@@ -26,7 +29,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${plusJakartaSans.variable} ${manrope.variable} h-full antialiased`}
+      className={cn("h-full", "antialiased", plusJakartaSans.variable, manrope.variable, "font-mono", jetbrainsMono.variable)}
       suppressHydrationWarning
     >
       <head>

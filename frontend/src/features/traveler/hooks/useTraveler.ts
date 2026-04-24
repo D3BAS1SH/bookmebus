@@ -87,11 +87,11 @@ async function searchTripsBySegment(
 async function fetchSeats(
   tripId: string,
   boardingLocationId?: string,
-  dropoffLocationpId?: string
+  dropoffLocationId?: string
 ): Promise<TripSeat[]> {
   const params = new URLSearchParams()
   if (boardingLocationId) params.set('boardingLocationId', boardingLocationId)
-  if (dropoffLocationpId) params.set('dropoffLocationpId', dropoffLocationpId)
+  if (dropoffLocationId) params.set('dropoffLocationId', dropoffLocationId)
   const qs = params.toString()
   const url = `/api/trips/${tripId}/seats${qs ? `?${qs}` : ''}`
   const res = await fetch(url, { credentials: 'include' })
@@ -220,11 +220,11 @@ export function useSegmentSearch(
 export function useTripSeats(
   tripId: string,
   boardingLocationId?: string,
-  dropoffLocationpId?: string
+  dropoffLocationId?: string
 ) {
   return useQuery({
-    queryKey: travelerKeys.seats(tripId, boardingLocationId, dropoffLocationpId),
-    queryFn: () => fetchSeats(tripId, boardingLocationId, dropoffLocationpId),
+    queryKey: travelerKeys.seats(tripId, boardingLocationId, dropoffLocationId),
+    queryFn: () => fetchSeats(tripId, boardingLocationId, dropoffLocationId),
     enabled: !!tripId,
   })
 }
