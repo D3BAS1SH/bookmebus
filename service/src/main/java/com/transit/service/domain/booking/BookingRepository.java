@@ -14,27 +14,32 @@ import java.util.UUID;
 public interface BookingRepository extends JpaRepository<Booking, UUID> {
     // Overlap check — core of the booking logic
     @Query("""
-        SELECT COUNT(b) > 0 FROM Booking b
+        SELECT COUNT(b) > 0
+        FROM Booking b
         WHERE b.tripSeat.tripSeatId = :tripSeatId
-        AND b.bookingStatus = 'CONFIRMED'
-        AND b.boardingSequence < :dropoffSeq
-        AND b.dropoffSequence > :boardingSeq
+          AND b.bookingStatus = :status
+          AND b.boardingSequence < :dropoffSeq
+          AND b.dropoffSequence  > :boardingSeq
     """)
     boolean existsOverlappingBooking(
             @Param("tripSeatId") UUID tripSeatId,
+            @Param("dropoffSeq") int dropoffSeq,
             @Param("boardingSeq") int boardingSeq,
-            @Param("dropoffSeq") int dropoffSeq
+            @Param("status") BookingStatus status
     );
 
     // Traveler's booking history — Phase 3 Part 2
-    @Query("""
+    @Query(value = """
         SELECT b FROM Booking b
         JOIN FETCH b.trip t
         JOIN FETCH b.tripSeat ts
         JOIN FETCH b.boardingPoint
         JOIN FETCH b.dropoffPoint
         WHERE b.traveler.id = :userId
-        ORDER BY b.bookingAt DESC
+    """,
+    countQuery = """
+        SELECT COUNT(b) FROM Booking b
+        WHERE b.traveler.id = :userId
     """)
     Page<Booking> findByUserId(
             @Param("userId") UUID userId,
@@ -42,14 +47,18 @@ public interface BookingRepository extends JpaRepository<Booking, UUID> {
     );
 
     // Owner — all bookings across their trips
-    @Query("""
+    @Query(value = """
         SELECT b FROM Booking b
         JOIN FETCH b.trip t
         JOIN FETCH b.tripSeat ts
         JOIN FETCH b.boardingPoint
         JOIN FETCH b.dropoffPoint
         WHERE t.bus.owner.id = :ownerId
-        ORDER BY b.bookingAt DESC
+    """,
+            countQuery = """
+        SELECT COUNT(b) FROM Booking b
+        JOIN b.trip t
+        WHERE t.bus.owner.id = :ownerId
     """)
     Page<Booking> findByOwnerId(
             @Param("ownerId") UUID ownerId,
