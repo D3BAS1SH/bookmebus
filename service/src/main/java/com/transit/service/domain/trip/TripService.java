@@ -47,8 +47,15 @@ public interface TripService {
      *   Intended for owner/driver occupancy dashboards.
      *
      * @param tripId         the trip to query seats for
-     * @param boardingStopId optional — location UUID of the boarding stop
-     * @param dropoffStopId  optional — location UUID of the dropoff stop
+     * @param boardingLocationId optional — location UUID of the boarding stop
+     * @param dropoffLocationId  optional — location UUID of the dropoff stop
      */
-    List<TripSeatResponse> getAvailableSeats(UUID tripId, UUID boardingStopId, UUID dropoffStopId);
+    List<TripSeatResponse> getAvailableSeats(UUID tripId, UUID boardingLocationId, UUID dropoffLocationId);
+
+    Page<TripResponse> searchTripsBySegment(
+            UUID originLocationId,
+            UUID destinationLocationId,
+            LocalDate date,
+            Pageable pageable
+    );
 }

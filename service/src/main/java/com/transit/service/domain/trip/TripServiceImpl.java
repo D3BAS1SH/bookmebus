@@ -1,13 +1,11 @@
 package com.transit.service.domain.trip;
 
 import com.transit.service.domain.booking.Booking;
+import com.transit.service.domain.booking.BookingStatus;
 import com.transit.service.domain.bus.Bus;
 import com.transit.service.domain.bus.BusRepository;
 import com.transit.service.domain.bus.SeatLayoutGenerator;
-import com.transit.service.domain.route.Route;
-import com.transit.service.domain.route.RouteRepository;
-import com.transit.service.domain.route.RouteStop;
-import com.transit.service.domain.route.RouteStopRepository;
+import com.transit.service.domain.route.*;
 import com.transit.service.domain.trip.dto.SeatStatus;
 import com.transit.service.domain.trip.dto.TripRequest;
 import com.transit.service.domain.trip.dto.TripResponse;
@@ -25,6 +23,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
@@ -39,6 +38,7 @@ public class TripServiceImpl implements TripService {
     private final RouteRepository routeRepository;
     private final UserRepository userRepository;
     private final RouteStopRepository routeStopRepository;
+    private final LocationRepository locationRepository;
 
     @Override
     @Transactional
@@ -237,19 +237,76 @@ public class TripServiceImpl implements TripService {
     @Transactional(readOnly = true)
     public List<TripSeatResponse> getAvailableSeats(
             UUID tripId,
-            UUID boardingStopId,
-            UUID dropoffStopId) {
+            UUID boardingLocationId,
+            UUID dropoffLocationId) {
 
         Trip trip = findTripOrThrow(tripId);
+        System.out.println("Found Trip");
         List<TripSeat> seats = tripSeatRepository.findByTrip(trip);
-
-        boolean segmentMode = boardingStopId != null && dropoffStopId != null;
+        System.out.println("Found Seats");
+        boolean segmentMode = boardingLocationId != null && dropoffLocationId != null;
 
         if (segmentMode) {
-            return getSeatsForSegment(trip, seats, boardingStopId, dropoffStopId);
+            System.out.println("Found Segment Mode");
+            return getSeatsForSegment(trip, seats, boardingLocationId, dropoffLocationId);
         } else {
+            System.out.println("Using non segment mode");
             return getSeatsGeneral(seats);
         }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<TripResponse> searchTripsBySegment(
+            UUID originLocationId,
+            UUID destinationLocationId,
+            LocalDate date,
+            Pageable pageable
+    ) {
+        // Validate both locations exist
+        if (!locationRepository.existsById(originLocationId))
+            throw new ResourceNotFoundException("Location", "Id", originLocationId);
+
+        if (!locationRepository.existsById(destinationLocationId))
+            throw new ResourceNotFoundException("Location", "Id", destinationLocationId);
+
+        if (originLocationId.equals(destinationLocationId))
+            throw new BusinessException("Origin and destination cannot be the same");
+
+        Page<Trip> trips = tripRepository.searchByOriginAndDestination(
+                originLocationId, destinationLocationId, date, pageable);
+
+        return trips.map(trip -> {
+
+            // Get boarding and dropoff RouteStops for this trip's route
+            RouteStop boardingStop = routeStopRepository
+                    .findByRouteAndLocationId(trip.getRoute(), originLocationId)
+                    .orElse(null);
+
+            RouteStop dropoffStop = routeStopRepository
+                    .findByRouteAndLocationId(trip.getRoute(), destinationLocationId)
+                    .orElse(null);
+
+            // Calculate estimated price
+            BigDecimal estimatedPrice = null;
+            if (boardingStop != null && dropoffStop != null) {
+                BigDecimal distance = dropoffStop.getDistanceFromOrigin()
+                        .subtract(boardingStop.getDistanceFromOrigin());
+                estimatedPrice = distance.multiply(trip.getBus().getPricePerKm());
+            }
+
+            // Count available seats for this segment
+            int availableSeats = 0;
+            if (boardingStop != null && dropoffStop != null) {
+                availableSeats = tripSeatRepository.countAvailableSeats(
+                        trip.getTripId(),
+                        boardingStop.getSequenceOrder(),
+                        dropoffStop.getSequenceOrder()
+                );
+            }
+
+            return toSearchResponse(trip, estimatedPrice, availableSeats);
+        });
     }
 
     // -------------------------------------------------------------------------
@@ -264,16 +321,16 @@ public class TripServiceImpl implements TripService {
     private List<TripSeatResponse> getSeatsForSegment(
             Trip trip,
             List<TripSeat> seats,
-            UUID boardingStopId,
-            UUID dropoffStopId) {
+            UUID boardingLocationId,
+            UUID dropoffLocationId) {
 
         // Resolve sequence numbers for the requested stops
         RouteStop boardingStop = routeStopRepository
-                .findByRoute_RouteIdAndLocation_LocationId(trip.getRoute().getRouteId(), boardingStopId)
+                .findByRoute_RouteIdAndLocation_LocationId(trip.getRoute().getRouteId(), boardingLocationId)
                 .orElseThrow(() -> new BusinessException("Boarding stop is not on this route"));
 
         RouteStop dropoffStop = routeStopRepository
-                .findByRoute_RouteIdAndLocation_LocationId(trip.getRoute().getRouteId(), dropoffStopId)
+                .findByRoute_RouteIdAndLocation_LocationId(trip.getRoute().getRouteId(), dropoffLocationId)
                 .orElseThrow(() -> new BusinessException("Dropoff stop is not on this route"));
 
         if (dropoffStop.getSequenceOrder() <= boardingStop.getSequenceOrder())
@@ -285,7 +342,7 @@ public class TripServiceImpl implements TripService {
         return seats.stream()
                 .map(seat -> {
                     boolean isBooked = tripSeatRepository.existsOverlappingBookingForSeat(
-                            seat.getTripSeatId(), boardingSeq, dropoffSeq);
+                            seat.getTripSeatId(), boardingSeq, dropoffSeq, BookingStatus.CANCELED);
 
                     return TripSeatResponse.builder()
                             .tripId(trip.getTripId())
@@ -307,9 +364,10 @@ public class TripServiceImpl implements TripService {
     private List<TripSeatResponse> getSeatsGeneral(List<TripSeat> seats) {
         return seats.stream()
                 .map(seat -> {
+//                    System.out.println("Inside general calling getSeatsGeneral");
                     List<Booking> bookings = tripSeatRepository
-                            .findConfirmedBookingsForSeat(seat.getTripSeatId());
-
+                            .findConfirmedBookingsForSeat(seat.getTripSeatId(),BookingStatus.CONFIRMED);
+//                    System.out.println("Inside map for booking");
                     List<TripSeatResponse.BookedSegmentInfo> segmentInfos = bookings.stream()
                             .map(b -> TripSeatResponse.BookedSegmentInfo.builder()
                                     .boardingSeq(b.getBoardingSequence())
@@ -350,12 +408,32 @@ public class TripServiceImpl implements TripService {
         return TripResponse.builder()
                 .tripId(trip.getTripId())
                 .busId(trip.getBus().getId())
+                .busRegistrationNumber(trip.getBus().getRegistrationNumber())
                 .routeId(trip.getRoute().getRouteId())
+                .routeName(trip.getRoute().getRouteName())
                 .driverId(trip.getDriver().getId())
                 .departureTime(trip.getDepartureTime())
                 .expectedDurationMin(trip.getExpectedDurationMin())
                 .status(trip.getStatus())
                 .seatsGenerated(seatsGenerated)
+                .createdAt(trip.getCreatedAt())
+                .build();
+    }
+
+    private TripResponse toSearchResponse(Trip trip, BigDecimal estimatedPrice, int availableSeats) {
+        return TripResponse.builder()
+                .tripId(trip.getTripId())
+                .busId(trip.getBus().getId())
+                .busRegistrationNumber(trip.getBus().getRegistrationNumber())
+                .routeId(trip.getRoute().getRouteId())
+                .routeName(trip.getRoute().getRouteName())
+                .driverId(trip.getDriver().getId())
+                .departureTime(trip.getDepartureTime())
+                .expectedDurationMin(trip.getExpectedDurationMin())
+                .status(trip.getStatus())
+                .seatsGenerated(tripSeatRepository.countByTrip(trip))
+                .availableSeats(availableSeats)
+                .estimatedPrice(estimatedPrice)
                 .createdAt(trip.getCreatedAt())
                 .build();
     }
