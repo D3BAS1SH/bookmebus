@@ -56,6 +56,26 @@ public class TripController {
         )));
     }
 
+    @GetMapping("/search/segment")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<ApiResponse<Page<TripResponse>>> searchTripsBySegment(
+            @RequestParam UUID originLocationId,
+            @RequestParam UUID destinationLocationId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            Pageable pageable
+    ) {
+        return ResponseEntity.ok(
+                ApiResponse.ok(
+                        tripService.searchTripsBySegment(
+                                originLocationId,
+                                destinationLocationId,
+                                date,
+                                pageable
+                        )
+                )
+        );
+    }
+
     @GetMapping("/owner")
     @PreAuthorize("hasRole('OWNER')")
     public ResponseEntity<ApiResponse<Page<TripResponse>>> getTripsByOwner(
@@ -126,10 +146,10 @@ public class TripController {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<List<TripSeatResponse>>> getSeats(
             @PathVariable UUID tripId,
-            @RequestParam(required = false) UUID boardingStopId,
-            @RequestParam(required = false) UUID dropoffStopId
+            @RequestParam(required = false) UUID boardingLocationId,
+            @RequestParam(required = false) UUID dropoffLocationpId
     ) {
         return ResponseEntity.ok(ApiResponse.ok(
-                tripService.getAvailableSeats(tripId, boardingStopId, dropoffStopId)));
+                tripService.getAvailableSeats(tripId, boardingLocationId, dropoffLocationpId)));
     }
 }
