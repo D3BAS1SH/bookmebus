@@ -13,6 +13,8 @@ public interface BusService {
 
     BusResponse getBusById(UUID busId, UUID ownerId);
 
+    BusResponse getBusById(UUID busId);
+
     List<BusResponse> getAllBusesByOwner(UUID ownerId);
 
     BusResponse updateBus(UUID busId, BusRequest request, UUID ownerId);

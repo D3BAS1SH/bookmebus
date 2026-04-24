@@ -54,6 +54,13 @@ public class BusServiceImpl implements BusService {
 
     @Override
     @Transactional(readOnly = true)
+    public BusResponse getBusById(UUID busId) {
+        Bus specificBus = this.busRepository.findById(busId).orElseThrow(()-> new ResourceNotFoundException("Bus","Id",busId));
+        return busMapper.toResponse(specificBus);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<BusResponse> getAllBusesByOwner(UUID ownerId) {
         return busRepository.findAllByOwner_Id(ownerId)
                 .stream()
