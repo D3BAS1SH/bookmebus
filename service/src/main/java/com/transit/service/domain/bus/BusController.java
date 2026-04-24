@@ -4,6 +4,7 @@ import com.transit.service.domain.bus.dto.BusRequest;
 import com.transit.service.domain.bus.dto.BusResponse;
 import com.transit.service.domain.bus.dto.BusStatusUpdateRequest;
 import com.transit.service.domain.user.User;
+import com.transit.service.domain.user.UserRole;
 import com.transit.service.shared.response.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -54,11 +55,15 @@ public class BusController {
      * Fetch a single bus by ID, scoped to the authenticated owner.
      */
     @GetMapping("/{busId}")
-    @PreAuthorize("hasRole('OWNER')")
+    @PreAuthorize("hasAnyRole('OWNER','TRAVELER')")
     public ResponseEntity<ApiResponse<BusResponse>> getBusById(
             @PathVariable UUID busId,
             @AuthenticationPrincipal User currentUser
     ) {
+        if(currentUser.getRole().equals(UserRole.TRAVELER)){
+            BusResponse busResponse = this.busService.getBusById(busId);
+            return ResponseEntity.ok(ApiResponse.ok(busResponse));
+        }
         BusResponse response = busService.getBusById(busId, currentUser.getId());
         return ResponseEntity.ok(ApiResponse.ok(response));
     }
