@@ -67,4 +67,14 @@ public interface RouteStopRepository extends JpaRepository<RouteStop, UUID> {
         ORDER BY rs.sequenceOrder ASC
         """)
     List<RouteStop> findDroppingStopsByRouteId(@Param("routeId") UUID routeId);
+
+    @Query("""
+        SELECT rs FROM RouteStop rs
+        WHERE rs.route = :route
+        AND rs.location.locationId = :locationId
+    """)
+    Optional<RouteStop> findByRouteAndLocationId(
+            @Param("route") Route route,
+            @Param("locationId") UUID locationId
+    );
 }
