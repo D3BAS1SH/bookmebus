@@ -52,4 +52,41 @@ public interface TripRepository extends JpaRepository<Trip, UUID> {
             nativeQuery = true
     )
     List<Trip> findByStatus(@Param("status") String status);
+
+    @Query(value = """
+        SELECT DISTINCT t FROM Trip t
+        JOIN FETCH t.bus b
+        JOIN FETCH b.owner
+        JOIN FETCH t.route r
+        JOIN FETCH t.driver
+        JOIN RouteStop rs1 ON rs1.route = r
+        JOIN RouteStop rs2 ON rs2.route = r
+        WHERE rs1.location.locationId = :originId
+        AND rs2.location.locationId = :destinationId
+        AND rs1.sequenceOrder < rs2.sequenceOrder
+        AND rs1.boardingPoint = true
+        AND rs2.droppingPoint = true
+        AND CAST(t.departureTime AS LocalDate) = :date
+        AND t.status = 'SCHEDULED'
+        ORDER BY t.departureTime ASC
+    """,
+    countQuery = """
+        SELECT COUNT(DISTINCT t) FROM Trip t
+        JOIN t.route r
+        JOIN RouteStop rs1 ON rs1.route = r
+        JOIN RouteStop rs2 ON rs2.route = r
+        WHERE rs1.location.locationId = :originId
+        AND rs2.location.locationId = :destinationId
+        AND rs1.sequenceOrder < rs2.sequenceOrder
+        AND rs1.boardingPoint = true
+        AND rs2.droppingPoint = true
+        AND CAST(t.departureTime AS LocalDate) = :date
+        AND t.status = 'SCHEDULED'
+    """)
+    Page<Trip> searchByOriginAndDestination(
+            @Param("originId") UUID originId,
+            @Param("destinationId") UUID destinationId,
+            @Param("date") LocalDate date,
+            Pageable pageable
+    );
 }
